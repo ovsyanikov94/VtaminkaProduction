@@ -34,11 +34,11 @@ angular.module('VtaminkaApplication.controllers')
 
 angular.module('VtaminkaApplication.constants')
     .constant('PASS' , {
-        HOST: 'http://localhost:63342/Vtaminka/public/',
+        HOST: 'http://localhost:5012/admin/',
         GET_NEWS : 'news/news-list.json',
-        GET_LANGS: 'i18n/langs.json',
-        GET_PRODUCTS :'products/products-list.json',
-        GET_TRANSLATIONS: 'i18n/{{LANG}}.json',
+        GET_LANGS: 'api/locale/list',
+        GET_PRODUCTS :'api/products/list',
+        GET_TRANSLATIONS: '/public/i18n/{{LANG}}.json',
         GET_PRODUCT:"products/Vitamin{{ProductID}}.json",
         GET_PROMO:"products/promo.json"
 
@@ -135,7 +135,17 @@ app.config( [
             },
             "content": {
                 'templateUrl': "templates/home/home.html",
-                controller: [ '$scope' ,  'CartService' , 'products', 'news' , function ($scope , CartService , products,news){
+                controller: [
+                    '$scope' ,
+                    'CartService' ,
+                    'products',
+                    //'news' ,
+                    function (
+                            $scope ,
+                            CartService ,
+                            products,
+                    //        news
+                    ){
 
                     ripplyScott.init('.button', 0.75);
 
@@ -150,7 +160,7 @@ app.config( [
                                 p.amount=$scope.cart[i].amount;
                             }
                         }
-                    })
+                    });
 
                     $scope.products = products.slice(start,end);
 
@@ -165,7 +175,7 @@ app.config( [
                         $scope.products = products.slice(start,end);
                     }
 
-                    $scope.news = news;
+                    //$scope.news = news;
 
 
                 } ]
@@ -177,16 +187,14 @@ app.config( [
         'resolve': {
 
             'products': [ 'ProductService' , function ( ProductService ){
-
                 return ProductService.getProducts();
             } ],
             'langs': [ 'LocaleService' , function ( LocaleService ){
                 return LocaleService.getLangs();
             }  ],
-            'news': [ 'NewsService', function  ( NewsService ){
-                return NewsService.getNews()
-            }
-            ]
+            // 'news': [ 'NewsService', function  ( NewsService ){
+            //     return NewsService.getNews()
+            // }]
 
         }
     });

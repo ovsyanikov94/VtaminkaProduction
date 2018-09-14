@@ -14,7 +14,7 @@ export default class ProductService{
 
     async getProducts(){
 
-        let response = await this._$http.get( `${this._PASS.HOST}${this._PASS.GET_PRODUCTS}` );
+        let response = await this._$http.get( `${this._PASS.HOST}${this._PASS.GET_PRODUCTS}?limit=2&offset=0` );
 
         let products = response.data;
 
