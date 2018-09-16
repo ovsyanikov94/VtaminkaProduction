@@ -16,7 +16,7 @@ export default function LangsOptionDirective( ){
                 $scope.currentLang = localStorageService.get('lang');
             }//if
             else{
-                $scope.currentLang = $scope.langs[0];
+                $scope.currentLang = $scope.langs[0].languageTitle;
             }//else
 
             $scope.changeLanguage = function ( newLanguage ){
@@ -36,11 +36,11 @@ export default function LangsOptionDirective( ){
 
             scope.langs.forEach( (lang) => {
 
-                if(scope.currentLang === lang){
-                    options += `<option value="${lang}" selected >${lang}</option>`;
+                if(scope.currentLang === lang.languageTitle){
+                    options += `<option value="${lang.languageTitle}" selected >${lang.languageTitle}</option>`;
                 }//if
                 else{
-                    options += `<option value="${lang}">${lang}</option>`;
+                    options += `<option value="${lang.languageTitle}">${lang.languageTitle}</option>`;
                 }//else
 
 

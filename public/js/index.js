@@ -142,7 +142,7 @@ angular.module('VtaminkaApplication.controllers')
 angular.module('VtaminkaApplication.constants')
     .constant('PASS' , {
         HOST: 'http://localhost:5012/admin/',
-        GET_NEWS : 'news/news-list.json',
+        GET_NEWS : 'api/news/news-list',
         GET_LANGS: 'api/locale/list',
         GET_PRODUCTS :'api/products/list',
         GET_TRANSLATIONS: '/public/i18n/{{LANG}}.json',
@@ -246,12 +246,12 @@ app.config( [
                     '$scope' ,
                     'CartService' ,
                     'products',
-                    //'news' ,
+                    'news' ,
                     function (
                             $scope ,
                             CartService ,
                             products,
-                    //        news
+                            news
                     ){
 
                     ripplyScott.init('.button', 0.75);
@@ -282,8 +282,8 @@ app.config( [
                         $scope.products = products.slice(start,end);
                     }
 
-                    //$scope.news = news;
-
+                    $scope.news = news;
+                    
 
                 } ]
             },
@@ -299,9 +299,9 @@ app.config( [
             'langs': [ 'LocaleService' , function ( LocaleService ){
                 return LocaleService.getLangs();
             }  ],
-            // 'news': [ 'NewsService', function  ( NewsService ){
-            //     return NewsService.getNews()
-            // }]
+            'news': [ 'NewsService', function  ( NewsService ){
+                return NewsService.getNews()
+            }]
 
         }
     });
@@ -723,7 +723,7 @@ function LangsOptionDirective( ){
                 $scope.currentLang = localStorageService.get('lang');
             }//if
             else{
-                $scope.currentLang = $scope.langs[0];
+                $scope.currentLang = $scope.langs[0].languageTitle;
             }//else
 
             $scope.changeLanguage = function ( newLanguage ){
@@ -743,11 +743,11 @@ function LangsOptionDirective( ){
 
             scope.langs.forEach( (lang) => {
 
-                if(scope.currentLang === lang){
-                    options += `<option value="${lang}" selected >${lang}</option>`;
+                if(scope.currentLang === lang.languageTitle){
+                    options += `<option value="${lang.languageTitle}" selected >${lang.languageTitle}</option>`;
                 }//if
                 else{
-                    options += `<option value="${lang}">${lang}</option>`;
+                    options += `<option value="${lang.languageTitle}">${lang.languageTitle}</option>`;
                 }//else
 
 
@@ -798,7 +798,7 @@ function ProductDirective( ){
 
             $scope.changeAmount = function ( newAmount ){
                 $scope.product.amount = newAmount;
-
+                
                 
             }
 
@@ -1073,7 +1073,8 @@ class LocaleService{
     async getLangs(){
 
             let response = await this._$http.get( `${this._PASS.HOST}${this._PASS.GET_LANGS}` );
-            return response.data;
+
+            return response.data.data;
 
     }//getLangs
 
@@ -1115,10 +1116,10 @@ class NewsService{
 
     async getNews(){
 
-        let response = await this._$http.get(`${this._PASS.HOST}${this._PASS.GET_NEWS}` )
+        let response = await this._$http.get(`${this._PASS.HOST}${this._PASS.GET_NEWS}?limit=4&offset=0` )
 
 
-        return response.data;
+        return response.data.data;
     }//getNews
 }
 
@@ -1152,7 +1153,7 @@ class ProductService{
 
         let response = await this._$http.get( `${this._PASS.HOST}${this._PASS.GET_PRODUCTS}?limit=2&offset=0` );
 
-        let products = response.data;
+        let products = response.data.data;
 
         products.forEach( p => {
             p.amount = 1;

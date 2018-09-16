@@ -16,7 +16,7 @@ export default class ProductService{
 
         let response = await this._$http.get( `${this._PASS.HOST}${this._PASS.GET_PRODUCTS}?limit=2&offset=0` );
 
-        let products = response.data;
+        let products = response.data.data;
 
         products.forEach( p => {
             p.amount = 1;

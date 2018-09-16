@@ -175,8 +175,8 @@ app.config( [
                         $scope.products = products.slice(start,end);
                     }
 
-                    //$scope.news = news;
-
+                    $scope.news = news;
+                    
 
                 } ]
             },
