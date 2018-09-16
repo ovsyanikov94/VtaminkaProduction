@@ -31,7 +31,7 @@ const ripplyScott = (function () {
         init: function (target, timing) {
             let buttons = document.querySelectorAll(target);
 
-            console.log(`buttons: ${buttons.length}`);
+            //console.log(`buttons: ${buttons.length}`);
 
             [].forEach.call(buttons, function (button) {
                 button.addEventListener('click', function (event) {
