@@ -35,7 +35,7 @@ angular.module('VtaminkaApplication.controllers')
 angular.module('VtaminkaApplication.constants')
     .constant('PASS' , {
         HOST: 'http://localhost:5012/admin/',
-        GET_NEWS : 'news/news-list.json',
+        GET_NEWS : 'api/news/news-list',
         GET_LANGS: 'api/locale/list',
         GET_PRODUCTS :'api/products/list',
         GET_TRANSLATIONS: '/public/i18n/{{LANG}}.json',
@@ -139,12 +139,12 @@ app.config( [
                     '$scope' ,
                     'CartService' ,
                     'products',
-                    //'news' ,
+                    'news' ,
                     function (
                             $scope ,
                             CartService ,
                             products,
-                    //        news
+                            news
                     ){
 
                     ripplyScott.init('.button', 0.75);
@@ -192,9 +192,9 @@ app.config( [
             'langs': [ 'LocaleService' , function ( LocaleService ){
                 return LocaleService.getLangs();
             }  ],
-            // 'news': [ 'NewsService', function  ( NewsService ){
-            //     return NewsService.getNews()
-            // }]
+            'news': [ 'NewsService', function  ( NewsService ){
+                return NewsService.getNews()
+            }]
 
         }
     });
