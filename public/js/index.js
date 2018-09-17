@@ -101,17 +101,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_CartService__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./services/CartService */ "./application/services/CartService.js");
 /* harmony import */ var _services_NewsService__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./services/NewsService */ "./application/services/NewsService.js");
 /* harmony import */ var _services_ApiService__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./services/ApiService */ "./application/services/ApiService.js");
-/* harmony import */ var _filters_DescriptionFilter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./filters/DescriptionFilter */ "./application/filters/DescriptionFilter.js");
-/* harmony import */ var _directives_LangsOptionDirective__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./directives/LangsOptionDirective */ "./application/directives/LangsOptionDirective.js");
-/* harmony import */ var _directives_ProductDirective__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./directives/ProductDirective */ "./application/directives/ProductDirective.js");
-/* harmony import */ var _directives_SingleProductDirective__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./directives/SingleProductDirective */ "./application/directives/SingleProductDirective.js");
-/* harmony import */ var _directives_CartDirective__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./directives/CartDirective */ "./application/directives/CartDirective.js");
+/* harmony import */ var _services_CategoryService__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./services/CategoryService */ "./application/services/CategoryService.js");
+/* harmony import */ var _filters_DescriptionFilter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./filters/DescriptionFilter */ "./application/filters/DescriptionFilter.js");
+/* harmony import */ var _directives_LangsOptionDirective__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./directives/LangsOptionDirective */ "./application/directives/LangsOptionDirective.js");
+/* harmony import */ var _directives_ProductDirective__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./directives/ProductDirective */ "./application/directives/ProductDirective.js");
+/* harmony import */ var _directives_SingleProductDirective__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./directives/SingleProductDirective */ "./application/directives/SingleProductDirective.js");
+/* harmony import */ var _directives_CartDirective__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./directives/CartDirective */ "./application/directives/CartDirective.js");
 
 
 //====================CONTROLLERS===========================//
 
 
 //====================SERVICES==============================//
+
 
 
 
@@ -147,9 +149,11 @@ angular.module('VtaminkaApplication.constants')
         GET_NEWS : 'api/news/news-list',
         GET_LANGS: 'api/locale/list',
         GET_PRODUCTS :'api/products/list',
+        GET_CATEGORY_PRODCUTS:'api//category/plist/:{{CategoryID}}',
         GET_TRANSLATIONS: 'i18n/{{LANG}}.json',
         GET_PRODUCT:"products/Vitamin{{ProductID}}.json",
         GET_PROMO:"products/promo.json",
+        GET_CATEGORIES:"api/category/list",
         POST_FEEDBACK:"api/feedbacks/new"
 
     });
@@ -171,24 +175,27 @@ angular.module('VtaminkaApplication.services')
 angular.module('VtaminkaApplication.services')
     .service('ApiService', ['$http', 'PASS', _services_ApiService__WEBPACK_IMPORTED_MODULE_5__["default"] ]);
 
+angular.module('VtaminkaApplication.services')
+    .service('CategoryService', ['$http', 'PASS', _services_CategoryService__WEBPACK_IMPORTED_MODULE_6__["default"] ]);
+
 //====================DIRECTIVES DECLARATIONS===================//
 angular.module('VtaminkaApplication.directives')
-    .directive('langsOptionDirective' , [ _directives_LangsOptionDirective__WEBPACK_IMPORTED_MODULE_7__["default"] ]);
+    .directive('langsOptionDirective' , [ _directives_LangsOptionDirective__WEBPACK_IMPORTED_MODULE_8__["default"] ]);
 
 angular.module('VtaminkaApplication.directives')
-    .directive('productDirective' , [ _directives_ProductDirective__WEBPACK_IMPORTED_MODULE_8__["default"] ]);
+    .directive('productDirective' , [ _directives_ProductDirective__WEBPACK_IMPORTED_MODULE_9__["default"] ]);
 
 angular.module('VtaminkaApplication.directives')
-    .directive('singleProductDirective' , [ _directives_SingleProductDirective__WEBPACK_IMPORTED_MODULE_9__["default"] ]);
+    .directive('singleProductDirective' , [ _directives_SingleProductDirective__WEBPACK_IMPORTED_MODULE_10__["default"] ]);
 
 angular.module('VtaminkaApplication.directives')
-    .directive('cartDirective' , [ _directives_CartDirective__WEBPACK_IMPORTED_MODULE_10__["default"] ]);
+    .directive('cartDirective' , [ _directives_CartDirective__WEBPACK_IMPORTED_MODULE_11__["default"] ]);
 
 
 
 //====================FILTERS DECLARATIONS===================//
 angular.module('VtaminkaApplication.filters')
-    .filter('DescriptionFilter', [_filters_DescriptionFilter__WEBPACK_IMPORTED_MODULE_6__["default"]]);
+    .filter('DescriptionFilter', [_filters_DescriptionFilter__WEBPACK_IMPORTED_MODULE_7__["default"]]);
 
 
 let app = angular.module('VtaminkaApplication',[
@@ -240,10 +247,10 @@ app.config( [
         'views':{
             "header":{
                 "templateUrl": "templates/header.html",
-                controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                controller: [ '$scope' , 'CartService','CategoryService','categories' , 'langs' , function ($scope, CartService ,CategoryService,categories, langs ){
                     $scope.langs = langs;
                     $scope.cart = CartService.getCart();
-
+                    $scope.categories = categories;
                 } ]
             },
             "content": {
@@ -400,10 +407,52 @@ app.config( [
                 return LocaleService.getLangs();
             }  ],
             'news': [ 'NewsService', function  ( NewsService ){
-                return NewsService.getNews()
+                return NewsService.getNews();
+            }],
+            'categories':['CategoryService',function (CategoryService) {
+                return CategoryService.getCategories();
             }]
 
         }
+    });
+
+    $stateProvider.state('categoryProducts',{
+
+        'url':'/category/:categoryID',
+        "header":{
+            "templateUrl": "templates/header.html",
+            controller: [ '$scope' , 'CartService','CategoryService','categories' , 'langs' , function ($scope, CartService ,CategoryService,categories, langs ){
+                $scope.langs = langs;
+                $scope.cart = CartService.getCart();
+                $scope.categories = categories;
+
+            } ]
+        },
+        "content":{
+            'templateUrl': "templates/categoryProducts/categoryProducts.html",
+            controller:['#scope','ProductService','categoryProducts',function ($scope,ProductService,categoryProducts) {
+                $scope.categoryProducts = categoryProducts;
+            }]
+        },
+        "footer": {
+            'templateUrl': "templates/footer.html",
+        },
+        'resolve': {
+
+            'langs': [ 'LocaleService' , function ( LocaleService ){
+                return LocaleService.getLangs();
+            }  ],
+
+            'categoryProducts':['ProductService','$stateParams', function  ( ProductService, $stateParams){
+                return ProductService.getCategoryProducts($stateParams.categoryID);
+            }
+            ],
+            'categories':['CategoryService',function (CategoryService) {
+                return CategoryService.getCategories();
+            }]
+
+        }
+
     });
 
     $stateProvider.state('singleProduct' , {
@@ -411,9 +460,11 @@ app.config( [
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
-                       $scope.langs = langs;
+                    controller: [ '$scope' , 'CartService','CategoryService','categories' , 'langs' , function ($scope, CartService ,CategoryService,categories, langs ){
+                        $scope.langs = langs;
                         $scope.cart = CartService.getCart();
+                        $scope.categories = categories;
+
                     } ]
                 },
                 "content": {
@@ -463,7 +514,10 @@ app.config( [
                 'product':['ProductService','$stateParams', function  ( ProductService, $stateParams){
                     return ProductService.getSingleProduct($stateParams.productID);
                 }
-                ]
+                ],
+                'categories':['CategoryService',function (CategoryService) {
+                    return CategoryService.getCategories();
+                }]
 
         }
         });
@@ -473,9 +527,11 @@ app.config( [
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                    controller: [ '$scope' , 'CartService','CategoryService','categories' , 'langs' , function ($scope, CartService ,CategoryService,categories, langs ){
                         $scope.langs = langs;
                         $scope.cart = CartService.getCart();
+                        $scope.categories = categories;
+
                     } ]
                 },
                 "content": {
@@ -503,6 +559,9 @@ app.config( [
                 'langs': [ 'LocaleService' , function ( LocaleService ){
                     return LocaleService.getLangs();
                 }  ],
+                'categories':['CategoryService',function (CategoryService) {
+                    return CategoryService.getCategories();
+                }]
 
 
             }
@@ -513,9 +572,11 @@ app.config( [
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                    controller: [ '$scope' , 'CartService','CategoryService','categories' , 'langs' , function ($scope, CartService ,CategoryService,categories, langs ){
                         $scope.langs = langs;
                         $scope.cart = CartService.getCart();
+                        $scope.categories = categories;
+
                     } ]
                 },
                 "content": {
@@ -624,6 +685,9 @@ app.config( [
                 'langs': [ 'LocaleService' , function ( LocaleService ){
                     return LocaleService.getLangs();
                 }  ],
+                'categories':['CategoryService',function (CategoryService) {
+                    return CategoryService.getCategories();
+                }]
 
 
             }
@@ -634,9 +698,11 @@ app.config( [
         'views':{
             "header":{
                 "templateUrl": "templates/header.html",
-                controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                controller: [ '$scope' , 'CartService','CategoryService','categories' , 'langs' , function ($scope, CartService ,CategoryService,categories, langs ){
                     $scope.langs = langs;
                     $scope.cart = CartService.getCart();
+                    $scope.categories = categories;
+
                 } ]
             },
             "content": {
@@ -667,6 +733,9 @@ app.config( [
             'langs': [ 'LocaleService' , function ( LocaleService ){
                 return LocaleService.getLangs();
             }  ],
+            'categories':['CategoryService',function (CategoryService) {
+                return CategoryService.getCategories();
+            }]
 
 
         }
@@ -1230,6 +1299,48 @@ class CartService{
 
 /***/ }),
 
+/***/ "./application/services/CategoryService.js":
+/*!*************************************************!*\
+  !*** ./application/services/CategoryService.js ***!
+  \*************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ApiService; });
+
+
+
+class ApiService{
+
+    constructor(
+        $http ,
+        PASS ,
+
+    ){
+
+        this._$http = $http;
+        this._PASS = PASS;
+
+    }
+
+    async getCategories(){
+
+        let response = await this._$http.get( `${this._PASS.HOST}${this._PASS.GET_CATEGORIES}`);
+
+        let categories = response.data.data;
+
+        console.log(categories);
+
+        return categories;
+
+    }//getCategories
+
+}//CategoryService
+
+/***/ }),
+
 /***/ "./application/services/LocaleService.js":
 /*!***********************************************!*\
   !*** ./application/services/LocaleService.js ***!
@@ -1352,6 +1463,16 @@ class ProductService{
         return products;
 
     }//getProducts
+
+    async getCategoryProducts(categoryID,limit,offset){
+
+        let id = this._PASS.GET_CATEGORY_PRODCUTS.replace('{{CategoryID}}' , categoryID);
+
+        let response = await this._$http.get(`${this._PASS.HOST}${id}`);
+
+        return response.data;
+
+    }//getCategoryProducts
 
     async getSingleProduct(productID){
 
