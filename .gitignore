@@ -3,3 +3,6 @@ node_modules
 bower_components
 package-lock.json
 tasks
+products
+images
+i18n

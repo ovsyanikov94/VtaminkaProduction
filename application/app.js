@@ -8,6 +8,7 @@ import LocaleService from './services/LocaleService';
 import ProductService from './services/ProductService';
 import CartService from './services/CartService';
 import NewsService from './services/NewsService';
+import ApiService from './services/ApiService';
 
 //====================FILTERS==============================//
 
@@ -36,11 +37,12 @@ angular.module('VtaminkaApplication.constants')
     .constant('PASS' , {
         HOST: 'http://localhost:5012/admin/',
         GET_NEWS : 'news/news-list.json',
-        GET_LANGS: 'api/locale/list',
+        GET_LANGS: 'i18n/langs.json',
         GET_PRODUCTS :'api/products/list',
         GET_TRANSLATIONS: '/public/i18n/{{LANG}}.json',
         GET_PRODUCT:"products/Vitamin{{ProductID}}.json",
-        GET_PROMO:"products/promo.json"
+        GET_PROMO:"products/promo.json",
+        POST_FEEDBACK:"api/feedbacks/new"
 
     });
 
@@ -57,6 +59,9 @@ angular.module('VtaminkaApplication.services')
 
 angular.module('VtaminkaApplication.services')
     .service('NewsService', ['$http', 'PASS', NewsService ]);
+
+angular.module('VtaminkaApplication.services')
+    .service('ApiService', ['$http', 'PASS', ApiService ]);
 
 //====================DIRECTIVES DECLARATIONS===================//
 angular.module('VtaminkaApplication.directives')
@@ -138,19 +143,28 @@ app.config( [
                 controller: [
                     '$scope' ,
                     'CartService' ,
+                    'ApiService',
                     'products',
+
                     //'news' ,
                     function (
                             $scope ,
                             CartService ,
+                            ApiService,
                             products,
+
                     //        news
                     ){
+
+                        $scope.regName=true;
+                        $scope.regMail=true;
+                        $scope.regPhone=true;
+                        $scope.regMessage=true;
 
                     ripplyScott.init('.button', 0.75);
 
                     let start=0;
-                    let end=12;
+                    let end=2;
                     $scope.cart = CartService.getCart();
                     products.forEach(p=>{
 
@@ -167,16 +181,93 @@ app.config( [
                     $scope.MoreProduct = function  (){
 
                         if(products.length>end){
-                            end += 4;
+                            end += 2;
                         }
 
-                        console.log(`start: ${start} end: ${end}`);
+                        //console.log(`start: ${start} end: ${end}`);
 
                         $scope.products = products.slice(start,end);
-                    }
+                    }//MoreProduct
+
+                        $scope.RegName = function  (){
+
+                            let regEng = /^[a-z0-9а-я\s_\-:,.;"'?!() ]{2,75}$/i;
+
+
+
+                            if(regEng.test($scope.name) && $scope.name) {
+                                $scope.regName=true;
+                            }//if
+                            else {
+                                $scope.regName=false;
+                            }
+
+                        }//RegName
+
+                        $scope.RegEmail=function  (){
+
+                            let regEmail = /^[a-z0-9а-я\s_\-:,.;"'?!()]{2,25}@[a-z0-9а-я\s_\-:]{2,20}.[a-zа-я]{2,10}$/i;
+
+                            if(regEmail.test($scope.email)) {
+                                $scope.regMail=true;
+                            }//if
+                            else {
+                                $scope.regMail=false;
+                            }
+
+                        }//RegEmail
+
+                        $scope.RegPhone = function  (){
+
+                            let regPhone = /^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,12}(\s*)?$/;
+
+                            if(regPhone.test($scope.phone)) {
+                                $scope.regPhone=true;
+                            }//if
+                            else {
+                                $scope.regPhone=false;
+                            }
+
+                        }//RegPhone
+
+                        $scope.RegMessage = function  (){
+
+                            let regMess = /^[a-z0-9а-я\s_\-:,.;"'?!()]{2,1500}$/i;
+
+                            if(regMess.test($scope.message)) {
+                                $scope.regMessage=true;
+                            }//if
+                            else {
+                                $scope.regMessage=false;
+                            }
+
+                        }//RegPhone
 
                     //$scope.news = news;
+                        $scope.SendMessage =  function  (){
 
+                            if($scope.name && $scope.regName
+                            && $scope.email && $scope.regMail
+                            && $scope.phone && $scope.regPhone
+                            && $scope.message && $scope.regMessage
+                            ){
+                                ApiService.sendMessage($scope.name, $scope.email, $scope.phone, $scope.message)
+                                    .then(response=>{
+
+
+                                        console.log('response - ', response);
+
+                                    })
+                                    .catch(error=>{
+                                        console.log(error);
+                                    });
+
+
+
+                                //console.log('responce - ', responce);
+                            }//if
+
+                        }//SendMessage
 
                 } ]
             },
@@ -323,6 +414,7 @@ app.config( [
                         $scope.regMail=true;
                         $scope.regPhone=true;
 
+
                         ripplyScott.init('.button', 0.75);
 
                         $scope.PromoClick = function  (){
@@ -401,6 +493,8 @@ app.config( [
                             }
 
                         }//RegPhone
+
+
 
 
                     } ]

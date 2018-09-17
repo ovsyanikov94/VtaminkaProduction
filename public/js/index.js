@@ -100,17 +100,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_ProductService__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./services/ProductService */ "./application/services/ProductService.js");
 /* harmony import */ var _services_CartService__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./services/CartService */ "./application/services/CartService.js");
 /* harmony import */ var _services_NewsService__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./services/NewsService */ "./application/services/NewsService.js");
-/* harmony import */ var _filters_DescriptionFilter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./filters/DescriptionFilter */ "./application/filters/DescriptionFilter.js");
-/* harmony import */ var _directives_LangsOptionDirective__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./directives/LangsOptionDirective */ "./application/directives/LangsOptionDirective.js");
-/* harmony import */ var _directives_ProductDirective__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./directives/ProductDirective */ "./application/directives/ProductDirective.js");
-/* harmony import */ var _directives_SingleProductDirective__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./directives/SingleProductDirective */ "./application/directives/SingleProductDirective.js");
-/* harmony import */ var _directives_CartDirective__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./directives/CartDirective */ "./application/directives/CartDirective.js");
+/* harmony import */ var _services_ApiService__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./services/ApiService */ "./application/services/ApiService.js");
+/* harmony import */ var _filters_DescriptionFilter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./filters/DescriptionFilter */ "./application/filters/DescriptionFilter.js");
+/* harmony import */ var _directives_LangsOptionDirective__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./directives/LangsOptionDirective */ "./application/directives/LangsOptionDirective.js");
+/* harmony import */ var _directives_ProductDirective__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./directives/ProductDirective */ "./application/directives/ProductDirective.js");
+/* harmony import */ var _directives_SingleProductDirective__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./directives/SingleProductDirective */ "./application/directives/SingleProductDirective.js");
+/* harmony import */ var _directives_CartDirective__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./directives/CartDirective */ "./application/directives/CartDirective.js");
 
 
 //====================CONTROLLERS===========================//
 
 
 //====================SERVICES==============================//
+
 
 
 
@@ -143,11 +145,12 @@ angular.module('VtaminkaApplication.constants')
     .constant('PASS' , {
         HOST: 'http://localhost:5012/admin/',
         GET_NEWS : 'news/news-list.json',
-        GET_LANGS: 'api/locale/list',
+        GET_LANGS: 'i18n/langs.json',
         GET_PRODUCTS :'api/products/list',
         GET_TRANSLATIONS: '/public/i18n/{{LANG}}.json',
         GET_PRODUCT:"products/Vitamin{{ProductID}}.json",
-        GET_PROMO:"products/promo.json"
+        GET_PROMO:"products/promo.json",
+        POST_FEEDBACK:"api/feedbacks/new"
 
     });
 
@@ -165,24 +168,27 @@ angular.module('VtaminkaApplication.services')
 angular.module('VtaminkaApplication.services')
     .service('NewsService', ['$http', 'PASS', _services_NewsService__WEBPACK_IMPORTED_MODULE_4__["default"] ]);
 
+angular.module('VtaminkaApplication.services')
+    .service('ApiService', ['$http', 'PASS', _services_ApiService__WEBPACK_IMPORTED_MODULE_5__["default"] ]);
+
 //====================DIRECTIVES DECLARATIONS===================//
 angular.module('VtaminkaApplication.directives')
-    .directive('langsOptionDirective' , [ _directives_LangsOptionDirective__WEBPACK_IMPORTED_MODULE_6__["default"] ]);
+    .directive('langsOptionDirective' , [ _directives_LangsOptionDirective__WEBPACK_IMPORTED_MODULE_7__["default"] ]);
 
 angular.module('VtaminkaApplication.directives')
-    .directive('productDirective' , [ _directives_ProductDirective__WEBPACK_IMPORTED_MODULE_7__["default"] ]);
+    .directive('productDirective' , [ _directives_ProductDirective__WEBPACK_IMPORTED_MODULE_8__["default"] ]);
 
 angular.module('VtaminkaApplication.directives')
-    .directive('singleProductDirective' , [ _directives_SingleProductDirective__WEBPACK_IMPORTED_MODULE_8__["default"] ]);
+    .directive('singleProductDirective' , [ _directives_SingleProductDirective__WEBPACK_IMPORTED_MODULE_9__["default"] ]);
 
 angular.module('VtaminkaApplication.directives')
-    .directive('cartDirective' , [ _directives_CartDirective__WEBPACK_IMPORTED_MODULE_9__["default"] ]);
+    .directive('cartDirective' , [ _directives_CartDirective__WEBPACK_IMPORTED_MODULE_10__["default"] ]);
 
 
 
 //====================FILTERS DECLARATIONS===================//
 angular.module('VtaminkaApplication.filters')
-    .filter('DescriptionFilter', [_filters_DescriptionFilter__WEBPACK_IMPORTED_MODULE_5__["default"]]);
+    .filter('DescriptionFilter', [_filters_DescriptionFilter__WEBPACK_IMPORTED_MODULE_6__["default"]]);
 
 
 let app = angular.module('VtaminkaApplication',[
@@ -245,19 +251,28 @@ app.config( [
                 controller: [
                     '$scope' ,
                     'CartService' ,
+                    'ApiService',
                     'products',
+
                     //'news' ,
                     function (
                             $scope ,
                             CartService ,
+                            ApiService,
                             products,
+
                     //        news
                     ){
+
+                        $scope.regName=true;
+                        $scope.regMail=true;
+                        $scope.regPhone=true;
+                        $scope.regMessage=true;
 
                     ripplyScott.init('.button', 0.75);
 
                     let start=0;
-                    let end=12;
+                    let end=2;
                     $scope.cart = CartService.getCart();
                     products.forEach(p=>{
 
@@ -274,16 +289,93 @@ app.config( [
                     $scope.MoreProduct = function  (){
 
                         if(products.length>end){
-                            end += 4;
+                            end += 2;
                         }
 
-                        console.log(`start: ${start} end: ${end}`);
+                        //console.log(`start: ${start} end: ${end}`);
 
                         $scope.products = products.slice(start,end);
-                    }
+                    }//MoreProduct
+
+                        $scope.RegName = function  (){
+
+                            let regEng = /^[a-z0-9а-я\s_\-:,.;"'?!() ]{2,75}$/i;
+
+
+
+                            if(regEng.test($scope.name) && $scope.name) {
+                                $scope.regName=true;
+                            }//if
+                            else {
+                                $scope.regName=false;
+                            }
+
+                        }//RegName
+
+                        $scope.RegEmail=function  (){
+
+                            let regEmail = /^[a-z0-9а-я\s_\-:,.;"'?!()]{2,25}@[a-z0-9а-я\s_\-:]{2,20}.[a-zа-я]{2,10}$/i;
+
+                            if(regEmail.test($scope.email)) {
+                                $scope.regMail=true;
+                            }//if
+                            else {
+                                $scope.regMail=false;
+                            }
+
+                        }//RegEmail
+
+                        $scope.RegPhone = function  (){
+
+                            let regPhone = /^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,12}(\s*)?$/;
+
+                            if(regPhone.test($scope.phone)) {
+                                $scope.regPhone=true;
+                            }//if
+                            else {
+                                $scope.regPhone=false;
+                            }
+
+                        }//RegPhone
+
+                        $scope.RegMessage = function  (){
+
+                            let regMess = /^[a-z0-9а-я\s_\-:,.;"'?!()]{2,1500}$/i;
+
+                            if(regMess.test($scope.message)) {
+                                $scope.regMessage=true;
+                            }//if
+                            else {
+                                $scope.regMessage=false;
+                            }
+
+                        }//RegPhone
 
                     //$scope.news = news;
+                        $scope.SendMessage =  function  (){
 
+                            if($scope.name && $scope.regName
+                            && $scope.email && $scope.regMail
+                            && $scope.phone && $scope.regPhone
+                            && $scope.message && $scope.regMessage
+                            ){
+                                ApiService.sendMessage($scope.name, $scope.email, $scope.phone, $scope.message)
+                                    .then(response=>{
+
+
+                                        console.log('response - ', response);
+
+                                    })
+                                    .catch(error=>{
+                                        console.log(error);
+                                    });
+
+
+
+                                //console.log('responce - ', responce);
+                            }//if
+
+                        }//SendMessage
 
                 } ]
             },
@@ -430,6 +522,7 @@ app.config( [
                         $scope.regMail=true;
                         $scope.regPhone=true;
 
+
                         ripplyScott.init('.button', 0.75);
 
                         $scope.PromoClick = function  (){
@@ -508,6 +601,8 @@ app.config( [
                             }
 
                         }//RegPhone
+
+
 
 
                     } ]
@@ -950,6 +1045,69 @@ function DescriptionFilter (){
 
 /***/ }),
 
+/***/ "./application/services/ApiService.js":
+/*!********************************************!*\
+  !*** ./application/services/ApiService.js ***!
+  \********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ApiService; });
+
+
+
+class ApiService{
+
+    constructor(
+        $http ,
+        PASS ,
+
+    ){
+
+        this._$http = $http;
+        this._PASS = PASS;
+
+    }
+
+    async sendMessage(userName, userEmail,userPhone,userMessage){
+
+        try {
+            console.log('in sendMessage');
+
+            let data = new FormData();
+
+            data.append('userName' , userName);
+            data.append('userEmail' , userEmail);
+            data.append('userPhone' , userPhone);
+            data.append('userMessage' , userMessage);
+
+            let request = await this._$http.post( `${this._PASS.HOST}${this._PASS.POST_FEEDBACK}` , {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: data
+            });
+
+            let responseJSON = await request.json();
+
+            console.log('in responseJSON', responseJSON);
+            return responseJSON;
+        }//try
+        catch(ex){
+            console.log(ex);
+        }//catch
+
+    }//sendMessage
+
+
+
+}//ApiService
+
+/***/ }),
+
 /***/ "./application/services/CartService.js":
 /*!*********************************************!*\
   !*** ./application/services/CartService.js ***!
@@ -1072,7 +1230,7 @@ class LocaleService{
 
     async getLangs(){
 
-            let response = await this._$http.get( `${this._PASS.HOST}${this._PASS.GET_LANGS}` );
+            let response = await this._$http.get( `http://localhost:5012/vtaminka/${this._PASS.GET_LANGS}` );
             return response.data;
 
     }//getLangs
@@ -1152,13 +1310,22 @@ class ProductService{
 
         let response = await this._$http.get( `${this._PASS.HOST}${this._PASS.GET_PRODUCTS}?limit=2&offset=0` );
 
-        let products = response.data;
-
+        let products = response.data.data;
+        //console.log('response = ', response);
+        //console.log('products = ', products);
+let resProduct = [];
         products.forEach( p => {
-            p.amount = 1;
+            let product = {
+                "ProductID": p.productID,
+                "ProductTitle": p.productTitle,
+                "ProductPrice": p.productPrice,
+                "ProductImage": `${this._PASS.HOST}${p.image.imagePath}`,
+                "amount": 1
+            }
+            resProduct.push(product);
         } );
 
-        return products;
+        return resProduct;
 
     }//getProducts
 
