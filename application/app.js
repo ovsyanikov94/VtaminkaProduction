@@ -29,7 +29,7 @@ angular.module('VtaminkaApplication.constants' , []);
 
 //====================CONTROLLERS DECLARATIONS================================//
 angular.module('VtaminkaApplication.controllers')
-    .controller( 'MainController' , [ '$scope' , 'LocaleService' , '$translate' , 'localStorageService' , MainController ]);
+    .controller( 'MainController' , [ '$scope' , 'LocaleService' , '$translate' , 'localStorageService' , '$mdDialog' , MainController ]);
 
 //====================CONSTANTS================================//
 
@@ -39,7 +39,7 @@ angular.module('VtaminkaApplication.constants')
         GET_NEWS : 'api/news/news-list',
         GET_LANGS: 'api/locale/list',
         GET_PRODUCTS :'api/products/list',
-        GET_TRANSLATIONS: '/public/i18n/{{LANG}}.json',
+        GET_TRANSLATIONS: 'i18n/{{LANG}}.json',
         GET_PRODUCT:"products/Vitamin{{ProductID}}.json",
         GET_PROMO:"products/promo.json",
         POST_FEEDBACK:"api/feedbacks/new"
@@ -113,7 +113,7 @@ app.config( [
     $urlRouterProvider.otherwise('/home');
 
     $translateProvider.useStaticFilesLoader({
-        'prefix': 'i18n/',
+        'prefix': '/admin/i18n/',
         'suffix': '.json'
     });
 
@@ -143,12 +143,14 @@ app.config( [
                 controller: [
                     '$scope' ,
                     'CartService' ,
+                    'ProductService',
                     'ApiService',
                     'products',
                     'news' ,
                     function (
                             $scope ,
                             CartService ,
+                            ProductService,
                             ApiService,
                             products,
                             news
@@ -161,9 +163,11 @@ app.config( [
 
                     ripplyScott.init('.button', 0.75);
 
-                    let start=0;
-                    let end=2;
+                    $scope.limit =0;
+                    $scope.offset = 2;
+
                     $scope.cart = CartService.getCart();
+
                     products.forEach(p=>{
 
                         for(let i=0; i<$scope.cart.length; i++){
@@ -174,98 +178,104 @@ app.config( [
                         }
                     });
 
-                    $scope.products = products.slice(start,end);
+                    $scope.products = products;
 
-                    $scope.MoreProduct = function  (){
+                    $scope.MoreProduct = async function  (){
 
-                        if(products.length>end){
-                            end += 2;
-                        }
+                        if(products.length > $scope.offset){
+                            $scope.offset += 2;
+                        }//
 
-                        //console.log(`start: ${start} end: ${end}`);
+                        let moreProducts = await ProductService.getProducts( $scope.limit , $scope.offset );
 
-                        $scope.products = products.slice(start,end);
+                        moreProducts.forEach( p => {
+                            p.amount = 1;
+                            $scope.products.push(p);
+                        } );
+
+
+
+
+
+
                     }//MoreProduct
 
-                        $scope.RegName = function  (){
+                    $scope.RegName = function  (){
 
-                            let regEng = /^[a-z0-9а-я\s_\-:,.;"'?!() ]{2,75}$/i;
-
-
-
-                            if(regEng.test($scope.name) && $scope.name) {
-                                $scope.regName=true;
-                            }//if
-                            else {
-                                $scope.regName=false;
-                            }
-
-                        }//RegName
-
-                        $scope.RegEmail=function  (){
-
-                            let regEmail = /^[a-z0-9а-я\s_\-:,.;"'?!()]{2,25}@[a-z0-9а-я\s_\-:]{2,20}.[a-zа-я]{2,10}$/i;
-
-                            if(regEmail.test($scope.email)) {
-                                $scope.regMail=true;
-                            }//if
-                            else {
-                                $scope.regMail=false;
-                            }
-
-                        }//RegEmail
-
-                        $scope.RegPhone = function  (){
-
-                            let regPhone = /^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,12}(\s*)?$/;
-
-                            if(regPhone.test($scope.phone)) {
-                                $scope.regPhone=true;
-                            }//if
-                            else {
-                                $scope.regPhone=false;
-                            }
-
-                        }//RegPhone
-
-                        $scope.RegMessage = function  (){
-
-                            let regMess = /^[a-z0-9а-я\s_\-:,.;"'?!()]{2,1500}$/i;
-
-                            if(regMess.test($scope.message)) {
-                                $scope.regMessage=true;
-                            }//if
-                            else {
-                                $scope.regMessage=false;
-                            }
-
-                        }//RegPhone
-
-                        $scope.news = news;
-                        $scope.SendMessage =  function  (){
-
-                            if($scope.name && $scope.regName
-                            && $scope.email && $scope.regMail
-                            && $scope.phone && $scope.regPhone
-                            && $scope.message && $scope.regMessage
-                            ){
-                                ApiService.sendMessage($scope.name, $scope.email, $scope.phone, $scope.message)
-                                    .then(response=>{
-
-
-                                        console.log('response - ', response);
-
-                                    })
-                                    .catch(error=>{
-                                        console.log(error);
-                                    });
+                        let regEng = /^[a-z0-9а-я\s_\-:,.;"'?!() ]{2,75}$/i;
 
 
 
-                                //console.log('responce - ', responce);
-                            }//if
+                        if(regEng.test($scope.name) && $scope.name) {
+                            $scope.regName=true;
+                        }//if
+                        else {
+                            $scope.regName=false;
+                        }
 
-                        }//SendMessage
+                    }//RegName
+
+                    $scope.RegEmail=function  (){
+
+                        let regEmail = /^[a-z0-9а-я\s_\-:,.;"'?!()]{2,25}@[a-z0-9а-я\s_\-:]{2,20}.[a-zа-я]{2,10}$/i;
+
+                        if(regEmail.test($scope.email)) {
+                            $scope.regMail=true;
+                        }//if
+                        else {
+                            $scope.regMail=false;
+                        }
+
+                    }//RegEmail
+
+                    $scope.RegPhone = function  (){
+
+                        let regPhone = /^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,12}(\s*)?$/;
+
+                        if(regPhone.test($scope.phone)) {
+                            $scope.regPhone=true;
+                        }//if
+                        else {
+                            $scope.regPhone=false;
+                        }
+
+                    }//RegPhone
+
+                    $scope.RegMessage = function  (){
+
+                        let regMess = /^[a-z0-9а-я\s_\-:,.;"'?!()]{2,1500}$/i;
+
+                        if(regMess.test($scope.message)) {
+                            $scope.regMessage=true;
+                        }//if
+                        else {
+                            $scope.regMessage=false;
+                        }
+
+                    }//RegPhone
+
+                    $scope.news = news;
+                    $scope.SendMessage =  function  ( $event ){
+
+                        if($scope.name && $scope.regName
+                        && $scope.email && $scope.regMail
+                        && $scope.phone && $scope.regPhone
+                        && $scope.message && $scope.regMessage
+                        ){
+                            ApiService.sendMessage($scope.name, $scope.email, $scope.phone, $scope.message)
+                                .then(response=>{
+
+                                    $scope.showDialog($event , response.message);
+
+                                    console.log('response - ', response);
+                                })
+                                .catch(error=>{
+                                    console.log(error);
+                                });
+
+                        }//if
+
+                    }//SendMessage
 
                 } ]
             },

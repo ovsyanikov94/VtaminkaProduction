@@ -137,7 +137,7 @@ angular.module('VtaminkaApplication.constants' , []);
 
 //====================CONTROLLERS DECLARATIONS================================//
 angular.module('VtaminkaApplication.controllers')
-    .controller( 'MainController' , [ '$scope' , 'LocaleService' , '$translate' , 'localStorageService' , _controllers_MainController__WEBPACK_IMPORTED_MODULE_0__["default"] ]);
+    .controller( 'MainController' , [ '$scope' , 'LocaleService' , '$translate' , 'localStorageService' , '$mdDialog' , _controllers_MainController__WEBPACK_IMPORTED_MODULE_0__["default"] ]);
 
 //====================CONSTANTS================================//
 
@@ -145,9 +145,9 @@ angular.module('VtaminkaApplication.constants')
     .constant('PASS' , {
         HOST: 'http://localhost:5012/admin/',
         GET_NEWS : 'api/news/news-list',
-        GET_LANGS: 'api/locale/list'
+        GET_LANGS: 'api/locale/list',
         GET_PRODUCTS :'api/products/list',
-        GET_TRANSLATIONS: '/public/i18n/{{LANG}}.json',
+        GET_TRANSLATIONS: 'i18n/{{LANG}}.json',
         GET_PRODUCT:"products/Vitamin{{ProductID}}.json",
         GET_PROMO:"products/promo.json",
         POST_FEEDBACK:"api/feedbacks/new"
@@ -221,7 +221,7 @@ app.config( [
     $urlRouterProvider.otherwise('/home');
 
     $translateProvider.useStaticFilesLoader({
-        'prefix': 'i18n/',
+        'prefix': '/admin/i18n/',
         'suffix': '.json'
     });
 
@@ -251,12 +251,14 @@ app.config( [
                 controller: [
                     '$scope' ,
                     'CartService' ,
+                    'ProductService',
                     'ApiService',
                     'products',
-                    'news' 
+                    'news' ,
                     function (
                             $scope ,
                             CartService ,
+                            ProductService,
                             ApiService,
                             products,
                             news
@@ -269,9 +271,11 @@ app.config( [
 
                     ripplyScott.init('.button', 0.75);
 
-                    let start=0;
-                    let end=2;
+                    $scope.limit =0;
+                    $scope.offset = 2;
+
                     $scope.cart = CartService.getCart();
+
                     products.forEach(p=>{
 
                         for(let i=0; i<$scope.cart.length; i++){
@@ -282,98 +286,104 @@ app.config( [
                         }
                     });
 
-                    $scope.products = products.slice(start,end);
+                    $scope.products = products;
 
-                    $scope.MoreProduct = function  (){
+                    $scope.MoreProduct = async function  (){
 
-                        if(products.length>end){
-                            end += 2;
-                        }
+                        if(products.length > $scope.offset){
+                            $scope.offset += 2;
+                        }//
 
-                        //console.log(`start: ${start} end: ${end}`);
+                        let moreProducts = await ProductService.getProducts( $scope.limit , $scope.offset );
 
-                        $scope.products = products.slice(start,end);
+                        moreProducts.forEach( p => {
+                            p.amount = 1;
+                            $scope.products.push(p);
+                        } );
+
+
+
+
+
+
                     }//MoreProduct
 
-                        $scope.RegName = function  (){
+                    $scope.RegName = function  (){
 
-                            let regEng = /^[a-z0-9а-я\s_\-:,.;"'?!() ]{2,75}$/i;
+                        let regEng = /^[a-z0-9а-я\s_\-:,.;"'?!() ]{2,75}$/i;
 
 
 
-                            if(regEng.test($scope.name) && $scope.name) {
-                                $scope.regName=true;
-                            }//if
-                            else {
-                                $scope.regName=false;
-                            }
+                        if(regEng.test($scope.name) && $scope.name) {
+                            $scope.regName=true;
+                        }//if
+                        else {
+                            $scope.regName=false;
+                        }
 
-                        }//RegName
+                    }//RegName
 
-                        $scope.RegEmail=function  (){
+                    $scope.RegEmail=function  (){
 
-                            let regEmail = /^[a-z0-9а-я\s_\-:,.;"'?!()]{2,25}@[a-z0-9а-я\s_\-:]{2,20}.[a-zа-я]{2,10}$/i;
+                        let regEmail = /^[a-z0-9а-я\s_\-:,.;"'?!()]{2,25}@[a-z0-9а-я\s_\-:]{2,20}.[a-zа-я]{2,10}$/i;
 
-                            if(regEmail.test($scope.email)) {
-                                $scope.regMail=true;
-                            }//if
-                            else {
-                                $scope.regMail=false;
-                            }
+                        if(regEmail.test($scope.email)) {
+                            $scope.regMail=true;
+                        }//if
+                        else {
+                            $scope.regMail=false;
+                        }
 
-                        }//RegEmail
+                    }//RegEmail
 
-                        $scope.RegPhone = function  (){
+                    $scope.RegPhone = function  (){
 
-                            let regPhone = /^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,12}(\s*)?$/;
+                        let regPhone = /^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,12}(\s*)?$/;
 
-                            if(regPhone.test($scope.phone)) {
-                                $scope.regPhone=true;
-                            }//if
-                            else {
-                                $scope.regPhone=false;
-                            }
+                        if(regPhone.test($scope.phone)) {
+                            $scope.regPhone=true;
+                        }//if
+                        else {
+                            $scope.regPhone=false;
+                        }
 
-                        }//RegPhone
+                    }//RegPhone
 
-                        $scope.RegMessage = function  (){
+                    $scope.RegMessage = function  (){
 
-                            let regMess = /^[a-z0-9а-я\s_\-:,.;"'?!()]{2,1500}$/i;
+                        let regMess = /^[a-z0-9а-я\s_\-:,.;"'?!()]{2,1500}$/i;
 
-                            if(regMess.test($scope.message)) {
-                                $scope.regMessage=true;
-                            }//if
-                            else {
-                                $scope.regMessage=false;
-                            }
+                        if(regMess.test($scope.message)) {
+                            $scope.regMessage=true;
+                        }//if
+                        else {
+                            $scope.regMessage=false;
+                        }
 
-                        }//RegPhone
+                    }//RegPhone
 
                     $scope.news = news;
-                    
-                        $scope.SendMessage =  function  (){
+                    $scope.SendMessage =  function  ( $event ){
 
-                            if($scope.name && $scope.regName
-                            && $scope.email && $scope.regMail
-                            && $scope.phone && $scope.regPhone
-                            && $scope.message && $scope.regMessage
-                            ){
-                                ApiService.sendMessage($scope.name, $scope.email, $scope.phone, $scope.message)
-                                    .then(response=>{
+                        if($scope.name && $scope.regName
+                        && $scope.email && $scope.regMail
+                        && $scope.phone && $scope.regPhone
+                        && $scope.message && $scope.regMessage
+                        ){
+                            ApiService.sendMessage($scope.name, $scope.email, $scope.phone, $scope.message)
+                                .then(response=>{
 
-                                        console.log('response - ', response);
+                                    $scope.showDialog($event , response.message);
 
-                                    })
-                                    .catch(error=>{
-                                        console.log(error);
-                                    });
+                                    console.log('response - ', response);
+                                })
+                                .catch(error=>{
+                                    console.log(error);
+                                });
 
+                        }//if
 
-
-                                //console.log('responce - ', responce);
-                            }//if
-
-                        }//SendMessage
+                    }//SendMessage
 
                 } ]
             },
@@ -698,17 +708,43 @@ __webpack_require__.r(__webpack_exports__);
 
 class MainController{
 
-    constructor( $scope , LocaleService , $translate , localStorageService ){
+    constructor( $scope , LocaleService , $translate , localStorageService , $mdDialog ){
 
 
         $scope.localStorageService = localStorageService;
 
         $scope.updateTranslations = function ( lang ){
-
+            $scope.mainLang = lang;
             $translate.use(lang);
             $scope.localStorageService.set( 'lang' , lang );
 
         }
+
+        $scope.showDialog = async function ($event , message){
+
+           let translation = await $translate('LAYOUT_CLOSE');
+
+            $mdDialog.show({
+                parent: angular.element(document.body),
+                targetEvent: $event,
+                controller: MainController,
+                template: `
+                    <md-dialog-content class="pop-up-content">
+                        <h4>${message}</h4>
+                    </md-dialog-content>
+                    <md-dialog-actions>
+                        <md-button ng-click="closeDialog()" class="md-primary">${translation}</md-button>
+                    </md-dialog-actions>
+                `
+            });
+
+        };
+
+        $scope.closeDialog = function (){
+
+            $mdDialog.hide();
+
+        };
 
     }//constructor
 
@@ -1072,27 +1108,21 @@ class ApiService{
     async sendMessage(userName, userEmail,userPhone,userMessage){
 
         try {
-            console.log('in sendMessage');
-
-            let data = new FormData();
-
-            data.append('userName' , userName);
-            data.append('userEmail' , userEmail);
-            data.append('userPhone' , userPhone);
-            data.append('userMessage' , userMessage);
 
             let request = await this._$http.post( `${this._PASS.HOST}${this._PASS.POST_FEEDBACK}` , {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: data
+                body: {
+                    'userName': userName,
+                    'userEmail': userEmail,
+                    'userPhone': userPhone,
+                    'userMessage': userMessage,
+                }
             });
 
-            let responseJSON = await request.json();
-
-            console.log('in responseJSON', responseJSON);
-            return responseJSON;
+            return request.data;
         }//try
         catch(ex){
             console.log(ex);
@@ -1227,17 +1257,20 @@ class LocaleService{
     }
 
     async getLangs(){
+      
             let response = await this._$http.get( `${this._PASS.HOST}${this._PASS.GET_LANGS}` );
 
             return response.data.data;
-
     }//getLangs
 
     async getTranslations( lang ){
 
         let sourceUrl = this._PASS.GET_TRANSLATIONS.replace('{{LANG}}' , lang.toUpperCase());
+        console.log('SOURCE URL:' , sourceUrl);
+
 
         let response = await this._$http.get( `${this._PASS.HOST}${sourceUrl}` );
+
         return response.data;
 
 
@@ -1304,24 +1337,19 @@ class ProductService{
 
     }
 
-    async getProducts(){
+    async getProducts( limit , offset ){
 
-        let response = await this._$http.get( `${this._PASS.HOST}${this._PASS.GET_PRODUCTS}?limit=2&offset=0` );
+        let response = await this._$http.get( `${this._PASS.HOST}${this._PASS.GET_PRODUCTS}?limit=${limit || 2}&offset=${offset || 0}` );
 
         let products = response.data.data;
-        let resProduct = [];
+
         products.forEach( p => {
-            let product = {
-                "ProductID": p.productID,
-                "ProductTitle": p.productTitle,
-                "ProductPrice": p.productPrice,
-                "ProductImage": `${this._PASS.HOST}${p.image.imagePath}`,
-                "amount": 1
-            }
-            resProduct.push(product);
+
+            p.amount = 1;
+
         } );
 
-        return resProduct;
+        return products;
 
     }//getProducts
 
