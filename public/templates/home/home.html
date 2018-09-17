@@ -34,13 +34,12 @@
 
     <h2 translate>LAYOUT_NEWS_LINK</h2>
 
-    <!--<div class="indexNews clearfix">-->
-        <!--<div ng-repeat="new in news" class="news col-lg-3 col-md-3 col-sm-6 col-xs-12" >-->
-            <!--<img ng-src="{{new.NewImage}}" alt="">-->
-
-        <!--</div>-->
-    <!--</div>-->
-
+    <div class="indexNews clearfix">
+        <div ng-repeat="new in news" class="news col-lg-3 col-md-3 col-sm-6 col-xs-12" >
+            <img ng-src="{{new.image.imagePath}}" alt="{{new.newsTitle}}">
+      </div>
+  </div>
+      
     <h2 translate>LAYOUT_CONTACT_US_LINK</h2>
 
     <div class="indexForm contactsForm col-lg-6 col-md-8 col-sm-10 col-xs-12 clearfix">

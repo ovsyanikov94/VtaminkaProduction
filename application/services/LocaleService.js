@@ -15,10 +15,10 @@ export default class LocaleService{
     }
 
     async getLangs(){
+      
+            let response = await this._$http.get( `${this._PASS.HOST}${this._PASS.GET_LANGS}` );
 
-            let response = await this._$http.get( `http://localhost:5012/vtaminka/${this._PASS.GET_LANGS}` );
-            return response.data;
-
+            return response.data.data;
     }//getLangs
 
     async getTranslations( lang ){

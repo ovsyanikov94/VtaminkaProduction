@@ -12,9 +12,9 @@ export  default class NewsService{
 
     async getNews(){
 
-        let response = await this._$http.get(`${this._PASS.HOST}${this._PASS.GET_NEWS}` )
+        let response = await this._$http.get(`${this._PASS.HOST}${this._PASS.GET_NEWS}?limit=4&offset=0` )
 
 
-        return response.data;
+        return response.data.data;
     }//getNews
 }

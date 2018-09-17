@@ -14,7 +14,7 @@ export default  function ProductDirective( ){
 
             $scope.changeAmount = function ( newAmount ){
                 $scope.product.amount = newAmount;
-
+                
                 
             }
 
