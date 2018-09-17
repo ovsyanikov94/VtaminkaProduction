@@ -106,6 +106,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _directives_ProductDirective__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./directives/ProductDirective */ "./application/directives/ProductDirective.js");
 /* harmony import */ var _directives_SingleProductDirective__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./directives/SingleProductDirective */ "./application/directives/SingleProductDirective.js");
 /* harmony import */ var _directives_CartDirective__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./directives/CartDirective */ "./application/directives/CartDirective.js");
+/* harmony import */ var _directives_BlogDirective__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./directives/BlogDirective */ "./application/directives/BlogDirective.js");
 
 
 //====================CONTROLLERS===========================//
@@ -122,6 +123,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 //====================DIRECTIVES==============================//
+
 
 
 
@@ -183,6 +185,9 @@ angular.module('VtaminkaApplication.directives')
 
 angular.module('VtaminkaApplication.directives')
     .directive('cartDirective' , [ _directives_CartDirective__WEBPACK_IMPORTED_MODULE_10__["default"] ]);
+
+angular.module('VtaminkaApplication.directives')
+    .directive('blogDirective' , [ _directives_BlogDirective__WEBPACK_IMPORTED_MODULE_11__["default"] ]);
 
 
 
@@ -300,11 +305,6 @@ app.config( [
                             p.amount = 1;
                             $scope.products.push(p);
                         } );
-
-
-
-
-
 
                     }//MoreProduct
 
@@ -670,8 +670,67 @@ app.config( [
 
 
         }
-    })
+    });
 
+    $stateProvider.state('blog' , {
+            'url': '/blog',
+            'views':{
+                "header":{
+                    "templateUrl": "templates/header.html",
+                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                        $scope.langs = langs;
+                        $scope.cart = CartService.getCart();
+
+                    } ]
+                },
+                "content": {
+                    'templateUrl': "templates/blog/blog.html",
+                    controller: [
+                        '$scope' ,
+                        'NewsService',
+                        'news' ,
+                        function (
+                            $scope ,
+                            NewsService,
+                            news
+                        ){
+                            ripplyScott.init('.button', 0.75);
+                            $scope.limit =0;
+                            $scope.offset = 2;
+
+                            $scope.news = news;
+
+                            $scope.MoreNews = async function  (){
+                                if(news.length > $scope.offset){
+                                    $scope.offset += 2;
+                                }//
+
+                                let moreNews = await NewsService.getNews( $scope.limit , $scope.offset );
+
+                                moreNews.forEach( n => {
+
+                                    $scope.news.push(n);
+                                } );
+                            }
+
+
+                        } ]
+                },
+                "footer": {
+                    'templateUrl': "templates/footer.html",
+                }
+            },
+            'resolve': {
+
+                'langs': [ 'LocaleService' , function ( LocaleService ){
+                    return LocaleService.getLangs();
+                }  ],
+                'news': [ 'NewsService', function  ( NewsService ){
+                    return NewsService.getNews(2,0)
+                }]
+
+            }
+        });
 } ] );
 
 app.run(
@@ -752,6 +811,52 @@ class MainController{
 
 /***/ }),
 
+/***/ "./application/directives/BlogDirective.js":
+/*!*************************************************!*\
+  !*** ./application/directives/BlogDirective.js ***!
+  \*************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return BlogDirective; });
+
+
+
+function BlogDirective( ){
+
+    return {
+
+        restrict: 'A',
+        scope: {
+            new: '='
+        },
+        templateUrl: 'templates/directives/blog-directive.html',
+        controller: [ '$scope' , 'CartService' , function ( $scope , CartService){
+
+            $scope.changeAmount = function ( newAmount ){
+                $scope.product.amount = newAmount;
+
+
+            }
+
+            $scope.AddProduct = function ( product ){
+                product.isInCart = true;
+                CartService.addProduct( product );
+
+            }
+
+
+
+        } ],
+
+    }
+
+}
+
+/***/ }),
+
 /***/ "./application/directives/CartDirective.js":
 /*!*************************************************!*\
   !*** ./application/directives/CartDirective.js ***!
@@ -777,7 +882,7 @@ function CartDirective (){
 
         controller: ['$scope', 'ProductService','CartService', function  ($scope, ProductService,  CartService){
 
-                 ProductService.getSingleProduct($scope.product.ProductID)
+                 ProductService.getSingleProduct($scope.product.productID)
                      .then (response=>{
                          $scope.product.description = response.ProductDescription;
 
@@ -1172,7 +1277,7 @@ class CartService{
 
     addProduct( product ){
 
-        this.cart.push( product );
+        this.cart.push( this._getSimpleProduct(product) );
 
         this.localStorageService.set( 'cartProduct' , this.cart );
 
@@ -1190,12 +1295,8 @@ class CartService{
     _getSimpleProduct(product){
         return {
 
-            "ProductID" :    product.ProductID,
-            "ProductTitle" : product.ProductTitle,
-            "ProductPrice" : product.ProductPrice,
-            "ProductImage" : product.ProductImage,
+            "ProductID" :    product.productID,
             "amount" :       product.amount,
-            "isInCart"     :  product.isInCart,
 
         };
     }
@@ -1302,9 +1403,9 @@ class NewsService{
 
     }//constructor
 
-    async getNews(){
+    async getNews(limit, offset){
 
-        let response = await this._$http.get(`${this._PASS.HOST}${this._PASS.GET_NEWS}?limit=4&offset=0` )
+        let response = await this._$http.get(`${this._PASS.HOST}${this._PASS.GET_NEWS}?limit=${limit || 4}&offset=${offset || 0}` )
 
 
         return response.data.data;
