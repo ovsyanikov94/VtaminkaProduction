@@ -17,4 +17,6 @@ export  default class NewsService{
 
         return response.data.data;
     }//getNews
+
+
 }
