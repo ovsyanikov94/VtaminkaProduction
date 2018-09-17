@@ -30,7 +30,6 @@ const ripplyScott = (function () {
     return {
         init: function (target, timing) {
             let buttons = document.querySelectorAll(target);
-
             [].forEach.call(buttons, function (button) {
                 button.addEventListener('click', function (event) {
                     rippleAnimation.call(this, button, event, timing);

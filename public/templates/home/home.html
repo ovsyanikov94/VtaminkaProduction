@@ -1,4 +1,4 @@
-<div class="banner" style="background-image: url(images/banner.png);">
+<div class="banner" style="background-image: url(http://localhost:5012/admin/images/service/banner.png);">
 </div>
 <div class="wrapper clearfix">
     <!-- SVG Sprite -->
@@ -37,10 +37,9 @@
     <div class="indexNews clearfix">
         <div ng-repeat="new in news" class="news col-lg-3 col-md-3 col-sm-6 col-xs-12" >
             <img ng-src="{{new.image.imagePath}}" alt="{{new.newsTitle}}">
-
-        </div>
-    </div>
-
+      </div>
+  </div>
+      
     <h2 translate>LAYOUT_CONTACT_US_LINK</h2>
 
     <div class="indexForm contactsForm col-lg-6 col-md-8 col-sm-10 col-xs-12 clearfix">
@@ -48,30 +47,34 @@
         <div class="clearfix">
             <div class="inputWrap col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <label>
-
-                    <input class=""  placeholder="{{'LAYOUT_YOU_NAME_LINK' | translate }}">
+                    <input class=""  placeholder="{{'LAYOUT_YOU_NAME_LINK' | translate }}" ng-blur="RegName()" ng-model="name">
                 </label>
+                <label ng-if="!regName" style="color: red;" translate>LAYOUT_INCORRECT_NAME_IN_FEEDBACK</label>
             </div>
+
             <div class="telInp inputWrap col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <label>
 
-                    <input class=""  placeholder="{{'LAYOUT_CONTACT_EMAIL_LINK' | translate }}">
+                    <input class=""  placeholder="{{'LAYOUT_CONTACT_EMAIL_LINK' | translate }}" ng-blur="RegEmail()" ng-model="email">
+                    <label ng-if="!regMail" style="color: red;" translate>LAYOUT_INCORRECT_MAIL</label>
                 </label>
             </div>
             <div class=" inputWrap col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <label>
 
-                    <input class=""  placeholder="{{'LAYOUT_CONTACT_PHONE_LINK' | translate }}">
+                    <input class=""  placeholder="{{'LAYOUT_CONTACT_PHONE_LINK' | translate }}" ng-blur="RegPhone()" ng-model="phone">
+                    <label ng-if="!regPhone" style="color: red;" translate>LAYOUT_INCORRECT_PHONE</label>
                 </label>
             </div>
 
         </div>
         <div class="areaWrap col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <textarea></textarea>
+            <textarea placeholder="{{'LAYOUT_MESSAGE_LINK' | translate }}" ng-blur="RegMessage()" ng-model="message"></textarea>
+            <label ng-if="!regMessage" style="color: red;" translate>LAYOUT_INCORRECT_MESSAGE</label>
         </div>
         <!--                        <input type="button" class="button" value="ОТПРАВИТЬ">-->
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <button class="button styl-material" >
+            <button class="button styl-material"  ng-click="SendMessage()">
                 <span translate>LAYOUT_SEND_LINK</span>
                 <svg class="ripple-obj" id="js-ripple">
                     <use height="100" width="100" xlink:href="#ripply-scott" class="js-ripple"></use>
