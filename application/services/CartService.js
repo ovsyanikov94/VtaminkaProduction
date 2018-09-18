@@ -24,7 +24,7 @@ export default class CartService{
 
     addProduct( product ){
 
-        this.cart.push( product );
+        this.cart.push( this._getSimpleProduct(product) );
 
         this.localStorageService.set( 'cartProduct' , this.cart );
 
@@ -42,12 +42,8 @@ export default class CartService{
     _getSimpleProduct(product){
         return {
 
-            "ProductID" :    product.ProductID,
-            "ProductTitle" : product.ProductTitle,
-            "ProductPrice" : product.ProductPrice,
-            "ProductImage" : product.ProductImage,
+            "ProductID" :    product.productID,
             "amount" :       product.amount,
-            "isInCart"     :  product.isInCart,
 
         };
     }
