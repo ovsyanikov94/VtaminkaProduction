@@ -2,7 +2,7 @@
 
 export default class MainController{
 
-    constructor( $scope , LocaleService , $translate , localStorageService , $mdDialog ){
+    constructor( $scope , LocaleService , $translate , localStorageService , CategoryService , $mdDialog ){
 
 
         $scope.localStorageService = localStorageService;
@@ -12,7 +12,14 @@ export default class MainController{
             $translate.use(lang);
             $scope.localStorageService.set( 'lang' , lang );
 
-        }
+        };
+
+        CategoryService.getCategories()
+            .then( categories => {
+                $scope.categories = categories;
+                $scope.$apply();
+            } )
+            .catch( error => console.log('error' , error) );
 
         $scope.showDialog = async function ($event , message){
 

@@ -50,8 +50,12 @@
             </a>
         </div>
         <div class="menu hidden-sm hidden-xs">
-            <nav ng-repeat="category in categories" class="mainMenu cl-effect-5">
-                <a ui-sref="categoryProducts({'categoryID': category.CategoryID}) #" ><span ng-value="category.categoryTitle" ></span></a>
+            <nav class="mainMenu cl-effect-5">
+                <a ng-repeat="category in categories"  ui-sref="categoryProducts({'categoryID': category.categoryID})" >
+                    <span data-hover="{{category.translation.constantTitle | translate}}" translate >
+                        {{category.translation.constantTitle}}
+                    </span>
+                </a>
             </nav>
         </div>
 

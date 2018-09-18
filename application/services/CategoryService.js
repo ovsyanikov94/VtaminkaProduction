@@ -20,8 +20,6 @@ export default class ApiService{
 
         let categories = response.data.data;
 
-        console.log(categories);
-
         return categories;
 
     }//getCategories

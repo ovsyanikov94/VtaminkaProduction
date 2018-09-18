@@ -30,7 +30,7 @@ angular.module('VtaminkaApplication.constants' , []);
 
 //====================CONTROLLERS DECLARATIONS================================//
 angular.module('VtaminkaApplication.controllers')
-    .controller( 'MainController' , [ '$scope' , 'LocaleService' , '$translate' , 'localStorageService' , '$mdDialog' , MainController ]);
+    .controller( 'MainController' , [ '$scope' , 'LocaleService' , '$translate' , 'localStorageService' , 'CategoryService' , '$mdDialog' , MainController ]);
 
 //====================CONSTANTS================================//
 
@@ -40,7 +40,7 @@ angular.module('VtaminkaApplication.constants')
         GET_NEWS : 'api/news/news-list',
         GET_LANGS: 'api/locale/list',
         GET_PRODUCTS :'api/products/list',
-        GET_CATEGORY_PRODCUTS:'api//category/plist/:{{CategoryID}}',
+        GET_CATEGORY_PRODCUTS:'api/category/plist/{{CategoryID}}',
         GET_TRANSLATIONS: 'i18n/{{LANG}}.json',
         GET_PRODUCT:"products/Vitamin{{ProductID}}.json",
         GET_PROMO:"products/promo.json",
@@ -138,10 +138,9 @@ app.config( [
         'views':{
             "header":{
                 "templateUrl": "templates/header.html",
-                controller: [ '$scope' , 'CartService','CategoryService','categories' , 'langs' , function ($scope, CartService ,CategoryService,categories, langs ){
+                controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
                     $scope.langs = langs;
                     $scope.cart = CartService.getCart();
-                    $scope.categories = categories;
                 } ]
             },
             "content": {
@@ -299,9 +298,6 @@ app.config( [
             }  ],
             'news': [ 'NewsService', function  ( NewsService ){
                 return NewsService.getNews();
-            }],
-            'categories':['CategoryService',function (CategoryService) {
-                return CategoryService.getCategories();
             }]
 
         }
@@ -310,23 +306,42 @@ app.config( [
     $stateProvider.state('categoryProducts',{
 
         'url':'/category/:categoryID',
-        "header":{
-            "templateUrl": "templates/header.html",
-            controller: [ '$scope' , 'CartService','CategoryService','categories' , 'langs' , function ($scope, CartService ,CategoryService,categories, langs ){
-                $scope.langs = langs;
-                $scope.cart = CartService.getCart();
-                $scope.categories = categories;
+        "views":{
+            "header":{
+                "templateUrl": "templates/header.html",
+                controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                    $scope.langs = langs;
+                    $scope.cart = CartService.getCart();
+                } ]
+            },
+            "content":{
+                'templateUrl': "templates/categoryProducts/categoryProducts.html",
+                controller:['$scope', '$stateParams' ,'ProductService','categoryProducts' ,function ($scope,$stateParams,ProductService,categoryProducts) {
+                    $scope.categoryProducts = categoryProducts;
 
-            } ]
-        },
-        "content":{
-            'templateUrl': "templates/categoryProducts/categoryProducts.html",
-            controller:['#scope','ProductService','categoryProducts',function ($scope,ProductService,categoryProducts) {
-                $scope.categoryProducts = categoryProducts;
-            }]
-        },
-        "footer": {
-            'templateUrl': "templates/footer.html",
+                    $scope.categoryID = $scope.categoryProducts
+
+                    $scope.offset = 0;
+                    $scope.limit = 2;
+
+                    $scope.GetMoreProductsByCategory = async function (){
+
+                        $scope.offset += $scope.limit;
+
+                        let response = await ProductService.getCategoryProducts($stateParams.categoryID,$scope.limit , $scope.offset);
+
+                        response.products.forEach(  p => {
+                            $scope.categoryProducts.products.push(p);
+                            p.amount = 1;
+                        });
+
+                    };
+
+                }]
+            },
+            "footer": {
+                'templateUrl': "templates/footer.html",
+            },
         },
         'resolve': {
 
@@ -336,10 +351,6 @@ app.config( [
 
             'categoryProducts':['ProductService','$stateParams', function  ( ProductService, $stateParams){
                 return ProductService.getCategoryProducts($stateParams.categoryID);
-            }
-            ],
-            'categories':['CategoryService',function (CategoryService) {
-                return CategoryService.getCategories();
             }]
 
         }
@@ -351,11 +362,9 @@ app.config( [
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService','CategoryService','categories' , 'langs' , function ($scope, CartService ,CategoryService,categories, langs ){
+                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
                         $scope.langs = langs;
                         $scope.cart = CartService.getCart();
-                        $scope.categories = categories;
-
                     } ]
                 },
                 "content": {
@@ -418,11 +427,9 @@ app.config( [
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService','CategoryService','categories' , 'langs' , function ($scope, CartService ,CategoryService,categories, langs ){
+                    controller: [ '$scope' , 'CartService','langs' , function ($scope, CartService , langs ){
                         $scope.langs = langs;
                         $scope.cart = CartService.getCart();
-                        $scope.categories = categories;
-
                     } ]
                 },
                 "content": {
@@ -449,11 +456,7 @@ app.config( [
 
                 'langs': [ 'LocaleService' , function ( LocaleService ){
                     return LocaleService.getLangs();
-                }  ],
-                'categories':['CategoryService',function (CategoryService) {
-                    return CategoryService.getCategories();
-                }]
-
+                }  ]
 
             }
         });
@@ -463,10 +466,9 @@ app.config( [
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService','CategoryService','categories' , 'langs' , function ($scope, CartService ,CategoryService,categories, langs ){
+                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
                         $scope.langs = langs;
                         $scope.cart = CartService.getCart();
-                        $scope.categories = categories;
 
                     } ]
                 },
@@ -575,10 +577,7 @@ app.config( [
 
                 'langs': [ 'LocaleService' , function ( LocaleService ){
                     return LocaleService.getLangs();
-                }  ],
-                'categories':['CategoryService',function (CategoryService) {
-                    return CategoryService.getCategories();
-                }]
+                }  ]
 
 
             }
@@ -589,11 +588,9 @@ app.config( [
         'views':{
             "header":{
                 "templateUrl": "templates/header.html",
-                controller: [ '$scope' , 'CartService','CategoryService','categories' , 'langs' , function ($scope, CartService ,CategoryService,categories, langs ){
+                controller: [ '$scope' , 'CartService', 'langs' , function ($scope, CartService , langs ){
                     $scope.langs = langs;
                     $scope.cart = CartService.getCart();
-                    $scope.categories = categories;
-
                 } ]
             },
             "content": {
@@ -623,12 +620,7 @@ app.config( [
 
             'langs': [ 'LocaleService' , function ( LocaleService ){
                 return LocaleService.getLangs();
-            }  ],
-            'categories':['CategoryService',function (CategoryService) {
-                return CategoryService.getCategories();
-            }]
-
-
+            }  ]
         }
     })
 

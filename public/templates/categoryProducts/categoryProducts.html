@@ -1,37 +1,45 @@
-<figure>
-    <li ng-repeat="product in categoryProducts" class="col-lg-3 col-md-4 col-sm-6 col-xs-12" product-directive product="product" >
+<div class="bannerSlim" style="background-image: url('http://hdwallpapers.cat/wallpaper/strawberry_fruit_red_brown_green_wood_hd-wallpaper-1725166.jpg');">
+    <div class="bannerWrap"></div>
+    <h2 translate>{{categoryProducts.category.constantTitle}}</h2>
+</div>
 
-        <div class="figurWrap">
-            <h3>
-                <a ui-sref="singleProduct({'productID': product.ProductID,'productAmount': product.amount})">
-                    {{product.productTitle }} &mdash;
-                    <span class="price" ng-bind-template="${{product.productPrice}}" ></span>
-                </a>
-            </h3>
-            <img ng-src="{{product.image.imagePath}}">
+<div class="wrapper clearfix">
+
+    <!-- SVG Sprite -->
+    <div style="height: 0; width: 0; position: absolute; visibility: hidden;" aria-hidden="true">
+        <svg version="1.1" xmlns="http://www.w2.org/2000/svg" xmlns:xlink="http://www.w2.org/1999/xlink" focusable="false">
+            <symbol id="ripply-scott" viewBox="0 0 100 100">
+                <circle id="ripple-shape" cx="1" cy="1" r="1" />
+            </symbol>
+        </svg>
+    </div>
+
+    <div class="products clearfix">
+
+        <div style="height: 0; width: 0; position: absolute; visibility: hidden;" aria-hidden="true">
+            <svg version="1.1" xmlns="http://www.w2.org/2000/svg" xmlns:xlink="http://www.w2.org/1999/xlink" focusable="false">
+                <symbol id="ripply-scott" viewBox="0 0 100 100">
+                    <circle id="ripple-shape" cx="1" cy="1" r="1" />
+                </symbol>
+            </svg>
         </div>
-        <figcaption>
-            <div ng-show="!product.isInCart"  class="clearfix buttonBlock">
 
-                <select class="cs-select cs-skin-border">
-                    <option value="1" disabled selected>1</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                </select>
+        <ul class="effect-2 grid cs-style-2 clearfix" id="grid">
 
-                <button ng-click="AddProduct(product)" id="js-ripple-btn" class="button styl-material" translate>
-                    LAYOUT_ADD_BASKET
-                    <svg class="ripple-obj" id="js-ripple">
-                        <use height="100" width="100" xlink:href="#ripply-scott" class="js-ripple"></use>
-                    </svg>
-                </button>
-            </div>
-            <div ng-show="product.isInCart" class="clearfix buttonBlock">
-                <div class="inCart" translate>LAYOUT_IN_BASKET</div>
-            </div>
-        </figcaption>
+            <li ng-repeat="product in categoryProducts.products" class="col-lg-3 col-md-4 col-sm-6 col-xs-12" product-directive product="product" >
 
-    </li>
+            </li>
 
+        </ul>
 
-</figure>
+        <div ng-if="offset <= categoryProducts.products.length" class="more">
+            <button ng-click="GetMoreProductsByCategory()"  id="js-ripple-btn" class="button styl-material" >
+                <span style="cursor: pointer" translate>LAYOUT_MORE_LINK</span>
+                <svg class="ripple-obj" id="js-ripple">
+                    <use height="100" width="100" xlink:href="#ripply-scott" class="js-ripple"></use>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+</div>
