@@ -44,7 +44,8 @@ angular.module('VtaminkaApplication.constants')
         GET_PRODUCTS :'api/products/list',
         GET_CATEGORY_PRODCUTS:'api/category/plist/{{CategoryID}}',
         GET_TRANSLATIONS: 'i18n/{{LANG}}.json',
-        GET_PRODUCT:"products/Vitamin{{ProductID}}.json",
+        GET_PRODUCT:"api/products/{{id}}",
+        GET_PRODUCTS_BY_IDS:"api/get-products-for-cart",
         GET_PROMO:"products/promo.json",
         GET_CATEGORIES:"api/category/list",
         POST_FEEDBACK:"api/feedbacks/new"
@@ -434,17 +435,24 @@ app.config( [
                 },
                 "content": {
                     'templateUrl': "templates/cart/cart.html",
-                    controller: [ '$scope' ,  'CartService' ,  function ($scope , CartService ){
+                    controller: [ '$scope' ,  'CartService' , 'products' , function ($scope , CartService , products){
 
                         $scope.cart = CartService.getCart();
+                        $scope.products = products;
 
-                        $scope.Total=CartService.total();
+                        $scope.products.forEach( p =>{
+
+                            let product = $scope.cart.find( pr => pr.productID === p.productID );
+
+                            p.amount = product.amount || 1;
+
+                        } );
+
+                        $scope.Total = CartService.total( $scope.products);
 
                         $scope.$watch( 'cart.length' , function (){
-
-                                $scope.Total = CartService.total();
+                                $scope.Total = CartService.total( $scope.products);
                                 //$scope.$apply();
-
                         } );
                     } ]
                 },
@@ -456,7 +464,12 @@ app.config( [
 
                 'langs': [ 'LocaleService' , function ( LocaleService ){
                     return LocaleService.getLangs();
-                }  ]
+                }  ],
+                'products': [
+                    'CartService' , function ( CartService ){
+                        return CartService.getProductsInCart();
+                    }
+                ]
 
             }
         });

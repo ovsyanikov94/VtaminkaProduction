@@ -5,17 +5,17 @@
 
             <div class="productBlock">
                 <h3 ng-bind="product.productTitle"></h3>
-                <p class="text-justify" ng-bind="product.description | DescriptionFilter:2"></p>
+                <p class="text-justify" ng-bind="product.productDescription | DescriptionFilter:60"></p>
             </div>
 
         </div>
-        <div class="text-center col-lg-1 col-md-1 col-sm-1 col-xs-12 productCartText cartCol" ng-bind-template="${{product.ProductPrice}}">
+        <div class="text-center col-lg-1 col-md-1 col-sm-1 col-xs-12 productCartText cartCol" ng-bind-template="${{product.productPrice}}">
 
         </div>
         <div class="text-center col-lg-1 col-md-1 col-sm-1 col-xs-12 productCartText cartCol">
             <input class="input" type="text" ng-model="product.amount" ng-change="ChangeProductAmount(product)">
         </div>
-        <div class="text-center col-lg-1 col-md-1 col-sm-1 col-xs-12 productCartText cartCol" ng-bind-template="${{product.amount * product.ProductPrice}}">
+        <div class="text-center col-lg-1 col-md-1 col-sm-1 col-xs-12 productCartText cartCol" ng-bind-template="${{product.amount * product.productPrice}}">
 
         </div>
         <div class="text-center col-lg-1 col-md-1 col-sm-1 col-xs-12 productCartText cartCol cartDelete">

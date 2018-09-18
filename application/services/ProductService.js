@@ -40,11 +40,11 @@ export default class ProductService{
 
     async getSingleProduct(productID){
 
-        let id = this._PASS.GET_PRODUCT.replace('{{ProductID}}' , productID);
+        let id = this._PASS.GET_PRODUCT.replace('{{id}}' , productID);
 
         let response = await this._$http.get(`${this._PASS.HOST}${id}`);
 
-        return response.data;
+        return response.data.data;
 
     }//getSingleProduct
 
