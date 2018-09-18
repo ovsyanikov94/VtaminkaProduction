@@ -38,6 +38,7 @@ angular.module('VtaminkaApplication.constants')
     .constant('PASS' , {
         HOST: 'http://localhost:5012/admin/',
         GET_NEWS : 'api/news/news-list',
+        GET_ONE_NEWS : 'api/news/one-news',
         GET_LANGS: 'api/locale/list',
         GET_PRODUCTS :'api/products/list',
         GET_TRANSLATIONS: 'i18n/{{LANG}}.json',
@@ -622,6 +623,43 @@ app.config( [
 
             }
         });
+      
+$stateProvider.state('oneNews',{
+
+        'url':"/oneNews/:NewsId",
+        'views':{
+            "header":{
+                "templateUrl": "templates/header.html",
+                controller: [ '$scope' ,'CartService', 'langs' , function ($scope, CartService , langs ){
+
+                    $scope.langs = langs;
+                    $scope.cart = CartService.getCart();
+                } ]
+            },
+            "content":{
+                'templateUrl': "templates/news/newsTemplate.html",
+                controler:['$scope' ,'news',function ($scope,news) {
+                    $scope.news = news;
+                }]
+
+            },
+            "footer": {
+                'templateUrl': "templates/footer.html",
+            }
+
+        },
+        'resolve': {
+
+            'news':['NewsService','$stateParams', function  ( NewsService,$stateParams ){
+                return NewsService.getOneNews($stateParams.NewsId)
+            }  ],
+            'langs': [ 'LocaleService' , function ( LocaleService ){
+                return LocaleService.getLangs();
+            }  ],
+
+
+        }
+    });
 } ] );
 
 app.run(
