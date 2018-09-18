@@ -13,7 +13,7 @@ export default function CartDirective (){
 
         controller: ['$scope', 'ProductService','CartService', function  ($scope, ProductService,  CartService){
 
-                 ProductService.getSingleProduct($scope.product.ProductID)
+                 ProductService.getSingleProduct($scope.product.productID)
                      .then (response=>{
                          $scope.product.description = response.ProductDescription;
 

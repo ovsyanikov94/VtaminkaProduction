@@ -18,6 +18,7 @@ import LangsOptionDirective from './directives/LangsOptionDirective';
 import ProductDirective from './directives/ProductDirective';
 import SingleProductDirective from './directives/SingleProductDirective';
 import CartDirective from './directives/CartDirective';
+import BlogDirective from './directives/BlogDirective';
 
 
 
@@ -75,6 +76,9 @@ angular.module('VtaminkaApplication.directives')
 
 angular.module('VtaminkaApplication.directives')
     .directive('cartDirective' , [ CartDirective ]);
+
+angular.module('VtaminkaApplication.directives')
+    .directive('blogDirective' , [ BlogDirective ]);
 
 
 
@@ -192,11 +196,6 @@ app.config( [
                             p.amount = 1;
                             $scope.products.push(p);
                         } );
-
-
-
-
-
 
                     }//MoreProduct
 
@@ -562,8 +561,67 @@ app.config( [
 
 
         }
-    })
+    });
 
+    $stateProvider.state('blog' , {
+            'url': '/blog',
+            'views':{
+                "header":{
+                    "templateUrl": "templates/header.html",
+                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                        $scope.langs = langs;
+                        $scope.cart = CartService.getCart();
+
+                    } ]
+                },
+                "content": {
+                    'templateUrl': "templates/blog/blog.html",
+                    controller: [
+                        '$scope' ,
+                        'NewsService',
+                        'news' ,
+                        function (
+                            $scope ,
+                            NewsService,
+                            news
+                        ){
+                            ripplyScott.init('.button', 0.75);
+                            $scope.limit =0;
+                            $scope.offset = 2;
+
+                            $scope.news = news;
+
+                            $scope.MoreNews = async function  (){
+                                if(news.length > $scope.offset){
+                                    $scope.offset += 2;
+                                }//
+
+                                let moreNews = await NewsService.getNews( $scope.limit , $scope.offset );
+
+                                moreNews.forEach( n => {
+
+                                    $scope.news.push(n);
+                                } );
+                            }
+
+
+                        } ]
+                },
+                "footer": {
+                    'templateUrl': "templates/footer.html",
+                }
+            },
+            'resolve': {
+
+                'langs': [ 'LocaleService' , function ( LocaleService ){
+                    return LocaleService.getLangs();
+                }  ],
+                'news': [ 'NewsService', function  ( NewsService ){
+                    return NewsService.getNews(2,0)
+                }]
+
+            }
+        });
 } ] );
 
 app.run(
