@@ -2,6 +2,8 @@
     <div class="bannerSlim" style="background-image: url('images/banner.png');  background-position-y: 55%;">
         <div class="bannerWrap"></div>
         <h2 translate>LAYOUT_BLOG</h2>
+
+
     </div>
     <div class="wrapper clearfix">
         <!-- SVG Sprite -->
@@ -13,8 +15,8 @@
             </svg>
         </div>
 
-        <!--                <h2>Статьи</h2>     -->
         <div class="blog">
+            <h2 ng-if="news.length === 0" translate>LAYOUT_NEWS_EMPTY</h2>
             <div class="blogItemWrap whiteBg clearfix" ng-repeat="new in news" blog-directive new="new">
 
             </div>
@@ -22,7 +24,7 @@
 
         </div>
 
-        <div class="more">
+        <div ng-if="offset <= news.length" class="more">
             <button ng-click="MoreNews()"  id="js-ripple-btn" class="button styl-material" >
                 <span style="cursor: pointer" translate>LAYOUT_MORE_LINK</span>
                 <svg class="ripple-obj" id="js-ripple">
