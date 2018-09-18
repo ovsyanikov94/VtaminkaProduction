@@ -20,7 +20,8 @@ export  default class NewsService{
 
     async getOneNews(id){
 
-        let respone = await this._$http.get(`${this._PASS.HOST}${this._PASS.GET_ONE_NEWS}/:${id}`);
+        let respone = await this._$http.get(`${this._PASS.HOST}${this._PASS.GET_ONE_NEWS}/${id}`);
         return respone.data;
+
     }
 }
