@@ -1,10 +1,10 @@
         <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 productImg cartCol">
-            <img ng-src = {{product.ProductImage}} alt="">
+            <img ng-src = {{product.image.imagePath}} alt="">
         </div>
         <div class=" col-lg-6 col-md-6 col-sm-6 col-xs-12 productCartText cartCol">
 
             <div class="productBlock">
-                <h3 ng-bind="product.ProductTitle"></h3>
+                <h3 ng-bind="product.productTitle"></h3>
                 <p class="text-justify" ng-bind="product.description | DescriptionFilter:2"></p>
             </div>
 

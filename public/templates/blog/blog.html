@@ -1,0 +1,36 @@
+<section>
+    <div class="bannerSlim" style="background-image: url('images/banner.png');  background-position-y: 55%;">
+        <div class="bannerWrap"></div>
+        <h2 translate>LAYOUT_BLOG</h2>
+
+
+    </div>
+    <div class="wrapper clearfix">
+        <!-- SVG Sprite -->
+        <div style="height: 0; width: 0; position: absolute; visibility: hidden;" aria-hidden="true">
+            <svg version="1.1" xmlns="http://www.w2.org/2000/svg" xmlns:xlink="http://www.w2.org/1999/xlink" focusable="false">
+                <symbol id="ripply-scott" viewBox="0 0 100 100">
+                    <circle id="ripple-shape" cx="1" cy="1" r="1" />
+                </symbol>
+            </svg>
+        </div>
+
+        <div class="blog">
+            <h2 ng-if="news.length === 0" translate>LAYOUT_NEWS_EMPTY</h2>
+            <div class="blogItemWrap whiteBg clearfix" ng-repeat="new in news" blog-directive new="new">
+
+            </div>
+
+
+        </div>
+
+        <div ng-if="offset <= news.length" class="more">
+            <button ng-click="MoreNews()"  id="js-ripple-btn" class="button styl-material" >
+                <span style="cursor: pointer" translate>LAYOUT_MORE_LINK</span>
+                <svg class="ripple-obj" id="js-ripple">
+                    <use height="100" width="100" xlink:href="#ripply-scott" class="js-ripple"></use>
+                </svg>
+            </button>
+        </div>
+    </div>
+</section>
