@@ -17,4 +17,11 @@ export  default class NewsService{
 
         return response.data.data;
     }//getNews
+
+    async getOneNews(id){
+
+        let respone = await this._$http.get(`${this._PASS.HOST}${this._PASS.GET_ONE_NEWS}/${id}`);
+        return respone.data;
+
+    }
 }
