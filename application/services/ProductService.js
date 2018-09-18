@@ -28,6 +28,16 @@ export default class ProductService{
 
     }//getProducts
 
+    async getCategoryProducts(categoryID,limit,offset){
+
+        let id = this._PASS.GET_CATEGORY_PRODCUTS.replace('{{CategoryID}}' , categoryID);
+
+        let response = await this._$http.get(`${this._PASS.HOST}${id}?limit=${limit || 2}&offset=${ offset || 0}`);
+
+        return response.data.data;
+
+    }//getCategoryProducts
+
     async getSingleProduct(productID){
 
         let id = this._PASS.GET_PRODUCT.replace('{{ProductID}}' , productID);

@@ -9,6 +9,7 @@ import ProductService from './services/ProductService';
 import CartService from './services/CartService';
 import NewsService from './services/NewsService';
 import ApiService from './services/ApiService';
+import CategoryService from './services/CategoryService';
 
 //====================FILTERS==============================//
 
@@ -30,7 +31,7 @@ angular.module('VtaminkaApplication.constants' , []);
 
 //====================CONTROLLERS DECLARATIONS================================//
 angular.module('VtaminkaApplication.controllers')
-    .controller( 'MainController' , [ '$scope' , 'LocaleService' , '$translate' , 'localStorageService' , '$mdDialog' , MainController ]);
+    .controller( 'MainController' , [ '$scope' , 'LocaleService' , '$translate' , 'localStorageService' , 'CategoryService' , '$mdDialog' , MainController ]);
 
 //====================CONSTANTS================================//
 
@@ -41,9 +42,11 @@ angular.module('VtaminkaApplication.constants')
         GET_ONE_NEWS : 'api/news/one-news',
         GET_LANGS: 'api/locale/list',
         GET_PRODUCTS :'api/products/list',
+        GET_CATEGORY_PRODCUTS:'api/category/plist/{{CategoryID}}',
         GET_TRANSLATIONS: 'i18n/{{LANG}}.json',
         GET_PRODUCT:"products/Vitamin{{ProductID}}.json",
         GET_PROMO:"products/promo.json",
+        GET_CATEGORIES:"api/category/list",
         POST_FEEDBACK:"api/feedbacks/new"
 
     });
@@ -64,6 +67,9 @@ angular.module('VtaminkaApplication.services')
 
 angular.module('VtaminkaApplication.services')
     .service('ApiService', ['$http', 'PASS', ApiService ]);
+
+angular.module('VtaminkaApplication.services')
+    .service('CategoryService', ['$http', 'PASS', CategoryService ]);
 
 //====================DIRECTIVES DECLARATIONS===================//
 angular.module('VtaminkaApplication.directives')
@@ -140,7 +146,6 @@ app.config( [
                 controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
                     $scope.langs = langs;
                     $scope.cart = CartService.getCart();
-
                 } ]
             },
             "content": {
@@ -292,10 +297,64 @@ app.config( [
                 return LocaleService.getLangs();
             }  ],
             'news': [ 'NewsService', function  ( NewsService ){
-                return NewsService.getNews()
+                return NewsService.getNews();
             }]
 
         }
+    });
+
+    $stateProvider.state('categoryProducts',{
+
+        'url':'/category/:categoryID',
+        "views":{
+            "header":{
+                "templateUrl": "templates/header.html",
+                controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                    $scope.langs = langs;
+                    $scope.cart = CartService.getCart();
+                } ]
+            },
+            "content":{
+                'templateUrl': "templates/categoryProducts/categoryProducts.html",
+                controller:['$scope', '$stateParams' ,'ProductService','categoryProducts' ,function ($scope,$stateParams,ProductService,categoryProducts) {
+                    $scope.categoryProducts = categoryProducts;
+
+                    $scope.categoryID = $scope.categoryProducts
+
+                    $scope.offset = 0;
+                    $scope.limit = 2;
+
+                    $scope.GetMoreProductsByCategory = async function (){
+
+                        $scope.offset += $scope.limit;
+
+                        let response = await ProductService.getCategoryProducts($stateParams.categoryID,$scope.limit , $scope.offset);
+
+                        response.products.forEach(  p => {
+                            $scope.categoryProducts.products.push(p);
+                            p.amount = 1;
+                        });
+
+                    };
+
+                }]
+            },
+            "footer": {
+                'templateUrl': "templates/footer.html",
+            },
+        },
+        'resolve': {
+
+            'langs': [ 'LocaleService' , function ( LocaleService ){
+                return LocaleService.getLangs();
+            }  ],
+
+            'categoryProducts':['ProductService','$stateParams', function  ( ProductService, $stateParams){
+                return ProductService.getCategoryProducts($stateParams.categoryID);
+            }]
+
+        }
+
     });
 
     $stateProvider.state('singleProduct' , {
@@ -304,7 +363,7 @@ app.config( [
                 "header":{
                     "templateUrl": "templates/header.html",
                     controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
-                       $scope.langs = langs;
+                        $scope.langs = langs;
                         $scope.cart = CartService.getCart();
                     } ]
                 },
@@ -355,7 +414,10 @@ app.config( [
                 'product':['ProductService','$stateParams', function  ( ProductService, $stateParams){
                     return ProductService.getSingleProduct($stateParams.productID);
                 }
-                ]
+                ],
+                'categories':['CategoryService',function (CategoryService) {
+                    return CategoryService.getCategories();
+                }]
 
         }
         });
@@ -365,7 +427,7 @@ app.config( [
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                    controller: [ '$scope' , 'CartService','langs' , function ($scope, CartService , langs ){
                         $scope.langs = langs;
                         $scope.cart = CartService.getCart();
                     } ]
@@ -394,8 +456,7 @@ app.config( [
 
                 'langs': [ 'LocaleService' , function ( LocaleService ){
                     return LocaleService.getLangs();
-                }  ],
-
+                }  ]
 
             }
         });
@@ -408,6 +469,7 @@ app.config( [
                     controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
                         $scope.langs = langs;
                         $scope.cart = CartService.getCart();
+
                     } ]
                 },
                 "content": {
@@ -515,7 +577,7 @@ app.config( [
 
                 'langs': [ 'LocaleService' , function ( LocaleService ){
                     return LocaleService.getLangs();
-                }  ],
+                }  ]
 
 
             }
@@ -526,7 +588,7 @@ app.config( [
         'views':{
             "header":{
                 "templateUrl": "templates/header.html",
-                controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                controller: [ '$scope' , 'CartService', 'langs' , function ($scope, CartService , langs ){
                     $scope.langs = langs;
                     $scope.cart = CartService.getCart();
                 } ]
@@ -558,9 +620,7 @@ app.config( [
 
             'langs': [ 'LocaleService' , function ( LocaleService ){
                 return LocaleService.getLangs();
-            }  ],
-
-
+            }  ]
         }
     });
 
