@@ -3,3 +3,8 @@
 .pop-up-content{
     padding: 25px;
 }
+
+#map {
+    width: 100%;
+    height:400px;
+}

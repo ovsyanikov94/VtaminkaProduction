@@ -10,6 +10,7 @@ import CartService from './services/CartService';
 import NewsService from './services/NewsService';
 import ApiService from './services/ApiService';
 import CategoryService from './services/CategoryService';
+import MapService from './services/MapService';
 
 //====================FILTERS==============================//
 
@@ -48,7 +49,8 @@ angular.module('VtaminkaApplication.constants')
         GET_PRODUCTS_BY_IDS:"api/get-products-for-cart",
         GET_PROMO:"products/promo.json",
         GET_CATEGORIES:"api/category/list",
-        POST_FEEDBACK:"api/feedbacks/new"
+        POST_FEEDBACK:"api/feedbacks/new",
+        GET_COORD:"api/cord-settings",
 
     });
 
@@ -68,6 +70,9 @@ angular.module('VtaminkaApplication.services')
 
 angular.module('VtaminkaApplication.services')
     .service('ApiService', ['$http', 'PASS', ApiService ]);
+
+angular.module('VtaminkaApplication.services')
+    .service('MapService', ['$http', 'PASS', MapService ]);
 
 angular.module('VtaminkaApplication.services')
     .service('CategoryService', ['$http', 'PASS', CategoryService ]);
@@ -95,7 +100,9 @@ angular.module('VtaminkaApplication.filters')
     .filter('DescriptionFilter', [DescriptionFilter]);
 
 
+
 let app = angular.module('VtaminkaApplication',[
+    'leaflet-directive',
     'angular-loading-bar',
     'LocalStorageModule',
     'VtaminkaApplication.controllers',
@@ -108,7 +115,6 @@ let app = angular.module('VtaminkaApplication',[
     'pascalprecht.translate',
     'ngMaterial',
     'ngMessages',
-    'ngMap'
 ]);
 
 app.config( [
@@ -190,6 +196,7 @@ app.config( [
                     });
 
                     $scope.products = products;
+                    $scope.news = news;
 
                     $scope.MoreProduct = async function  (){
 
@@ -260,7 +267,6 @@ app.config( [
 
                     }//RegPhone
 
-                    $scope.news = news;
                     $scope.SendMessage =  function  ( $event ){
 
                         if($scope.name && $scope.regName
@@ -601,27 +607,128 @@ app.config( [
         'views':{
             "header":{
                 "templateUrl": "templates/header.html",
-                controller: [ '$scope' , 'CartService', 'langs' , function ($scope, CartService , langs ){
+                controller: [ '$scope' , 'CartService', 'langs'  ,   function ($scope, CartService , langs ){
                     $scope.langs = langs;
                     $scope.cart = CartService.getCart();
                 } ]
             },
             "content": {
                 'templateUrl': "templates/contacts.html",
-                controller: [ '$scope' , 'NgMap' ,  function ($scope , NgMap ){
+                controller: [ '$scope' , 'ApiService' , 'coord' ,  function ($scope , ApiService , coord ){
 
-                    $scope.center = {
-                        'lat': 48.019849,
-                        'lng': 37.804198
-                    };
+                    $scope.regName=true;
+                    $scope.regMail=true;
+                    $scope.regPhone=true;
+                    $scope.regMessage=true;
 
-                    NgMap.getMap().then(function(map) {
-                        console.log('map' , map);
+                    $scope.MoreProduct = async function  (){
 
-                        map.setCenter($scope.center);
+                        if(products.length > $scope.offset){
+                            $scope.offset += 2;
+                        }//
 
+                        let moreProducts = await ProductService.getProducts( $scope.limit , $scope.offset );
+
+                        moreProducts.forEach( p => {
+                            p.amount = 1;
+                            $scope.products.push(p);
+                        } );
+
+                    }//MoreProduct
+
+                    $scope.RegName = function  (){
+
+                        let regEng = /^[a-z0-9а-я\s_\-:,.;"'?!() ]{2,75}$/i;
+
+
+
+                        if(regEng.test($scope.name) && $scope.name) {
+                            $scope.regName=true;
+                        }//if
+                        else {
+                            $scope.regName=false;
+                        }
+
+                    }//RegName
+
+                    $scope.RegEmail=function  (){
+
+                        let regEmail = /^[a-z0-9а-я\s_\-:,.;"'?!()]{2,25}@[a-z0-9а-я\s_\-:]{2,20}.[a-zа-я]{2,10}$/i;
+
+                        if(regEmail.test($scope.email)) {
+                            $scope.regMail=true;
+                        }//if
+                        else {
+                            $scope.regMail=false;
+                        }
+
+                    }//RegEmail
+
+                    $scope.RegPhone = function  (){
+
+                        let regPhone = /^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,12}(\s*)?$/;
+
+                        if(regPhone.test($scope.phone)) {
+                            $scope.regPhone=true;
+                        }//if
+                        else {
+                            $scope.regPhone=false;
+                        }
+
+                    }//RegPhone
+
+                    $scope.RegMessage = function  (){
+
+                        let regMess = /^[a-z0-9а-я\s_\-:,.;"'?!()]{2,1500}$/i;
+
+                        if(regMess.test($scope.message)) {
+                            $scope.regMessage=true;
+                        }//if
+                        else {
+                            $scope.regMessage=false;
+                        }
+
+                    }//RegPhone
+
+                    $scope.SendMessage =  function  ( $event ){
+
+                        if($scope.name && $scope.regName
+                            && $scope.email && $scope.regMail
+                            && $scope.phone && $scope.regPhone
+                            && $scope.message && $scope.regMessage
+                        ){
+                            ApiService.sendMessage($scope.name, $scope.email, $scope.phone, $scope.message)
+                                .then(response=>{
+
+                                    $scope.showDialog($event , response.message);
+
+                                    console.log('response - ', response);
+                                })
+                                .catch(error=>{
+                                    console.log(error);
+                                });
+
+                        }//if
+
+                    }//SendMessage
+
+                    angular.extend($scope, {
+                        center: {
+                            lat: coord.lat,
+                            lng: coord.lng,
+                            zoom: 18
+                        },
+                        myDefaults: {
+                            scrollWheelZoom: true
+                        },
+                        markers: {
+                            amarker:{
+                                lat: coord.lat,
+                                lng: coord.lng,
+                                zoom: 18
+                            }
+                        }
                     });
-
 
                 } ]
             },
@@ -633,7 +740,10 @@ app.config( [
 
             'langs': [ 'LocaleService' , function ( LocaleService ){
                 return LocaleService.getLangs();
-            }  ]
+            }  ],
+            'coord': [ 'MapService' , function ( MapService ){
+                return MapService.getCoords();
+            }]
         }
     });
 
@@ -745,9 +855,6 @@ app.run(
             if(userLang){
                 $translate.use(userLang);
             }//if
-
-
-
 
         }
     ]);
