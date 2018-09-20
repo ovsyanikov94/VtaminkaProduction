@@ -14,23 +14,6 @@ export default function CartDirective (){
 
         controller: ['$scope', 'ProductService','CartService', function  ($scope, ProductService,  CartService){
 
-
-
-            // CartService.getProductsInCart($scope.product.productID)
-            //          .then( p => {
-            //
-            //                  p.amount = $scope.product.amount || 1;
-            //                  $scope.product = p;
-            //                  console.log('PRODUCT-CART' , p );
-            //
-            //                  $scope.Total = CartService.total(p.productPrice , p.amount);
-            //
-            //          } )
-            //          .catch(error=>{
-            //              console.log(error);
-            //          });
-            //
-            //
                  $scope.cart = CartService.getCart();
 
                  $scope.RemoveProduct = function  (product){
@@ -57,12 +40,9 @@ export default function CartDirective (){
                          $scope.RemoveProduct(product);
                      }//if
 
-                     console.log(product);
-                     console.log($scope.products);
-
                      $scope.$parent.$parent.Total = CartService.total($scope.products);
 
-                     CartService.changeStorageService($scope.cart);
+                     CartService.changeStorageService($scope.products);
                  }
 
 
