@@ -70,7 +70,6 @@ export default class CartService{
 
     }//total
 
-
     async getProductsInCart(){
 
         let ids = [].map.call( this.cart , c => c.productID );
@@ -83,10 +82,40 @@ export default class CartService{
 
     }
 
-    async  GetPromo (){
-        let response = await this.http.get(`${this.PASS.HOST}${this.PASS.GET_PROMO}`);
+    async  GetPromo ( code ){
+        let response = await this.http.post(`${this.PASS.HOST}${this.PASS.GET_PROMO}` , {
+            'promoCode': code
+        });
         return response.data;
 
     };
+
+    async MakeOrder ( order ){
+
+        // order.products
+        // order.total
+        // order.user
+        // order.promoCode
+
+        let response = await this.http.post(`${this.PASS.HOST}${this.PASS.MAKE_ORDER}` , {
+
+            'userName': order.user.userName,
+            'userEmail': order.user.userEmail,
+            'userPhone': order.user.userPhone,
+            'userAdress': order.user.userAdress,
+            'userMessage': order.user.userMessage,
+            'numberCard': order.user.numberCard,
+            'yearCard': order.user.yearCard,
+            'monthCard': order.user.monthCard,
+            'cvvCard': order.user.cvvCard,
+            'nameCard': order.user.nameCard,
+            'promoCode': order.promoCode,
+            'products': order.products
+
+        });
+
+        return response.data;
+
+    }//MakeOrder
 
 }

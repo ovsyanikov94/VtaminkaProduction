@@ -38,7 +38,7 @@ angular.module('VtaminkaApplication.controllers')
 
 angular.module('VtaminkaApplication.constants')
     .constant('PASS' , {
-        HOST: 'http://localhost:5012/admin/',
+        HOST: 'http://185.98.87.71/admin/',
         GET_NEWS : 'api/news/news-list',
         GET_ONE_NEWS : 'api/news/one-news',
         GET_LANGS: 'api/locale/list',
@@ -47,10 +47,11 @@ angular.module('VtaminkaApplication.constants')
         GET_TRANSLATIONS: 'i18n/{{LANG}}.json',
         GET_PRODUCT:"api/products/{{id}}",
         GET_PRODUCTS_BY_IDS:"api/get-products-for-cart",
-        GET_PROMO:"products/promo.json",
+        GET_PROMO:"api/promo-codes/use-promo-code",
         GET_CATEGORIES:"api/category/list",
         POST_FEEDBACK:"api/feedbacks/new",
         GET_COORD:"api/cord-settings",
+        MAKE_ORDER :"api/order/new",
 
     });
 
@@ -180,19 +181,25 @@ app.config( [
 
                     ripplyScott.init('.button', 0.75);
 
-                    $scope.limit =0;
-                    $scope.offset = 2;
+                    $scope.limit = 2;
+                    $scope.offset = 0;
 
                     $scope.cart = CartService.getCart();
 
-                    products.forEach(p=>{
+                    products.forEach( p => {
 
-                        for(let i=0; i<$scope.cart.length; i++){
-                            if(p.ProductID === $scope.cart[i].ProductID){
-                                p.isInCart=true;
-                                p.amount=$scope.cart[i].amount;
-                            }
-                        }
+                        let product = $scope.cart.find( pr => pr.productID === p.productID  );
+
+                        if( product ){
+
+                            p.isInCart = true;
+                            p.amount = product.amount;
+
+                        }//if
+                        else{
+                            p.isInCart = false;
+                        }//else
+
                     });
 
                     $scope.products = products;
@@ -200,16 +207,30 @@ app.config( [
 
                     $scope.MoreProduct = async function  (){
 
-                        if(products.length > $scope.offset){
-                            $scope.offset += 2;
-                        }//
+                        $scope.offset += $scope.limit;
 
                         let moreProducts = await ProductService.getProducts( $scope.limit , $scope.offset );
 
                         moreProducts.forEach( p => {
-                            p.amount = 1;
+
                             $scope.products.push(p);
+
+                            let checkProduct = $scope.cart.find( pr => pr.productID === p.productID );
+
+                            if(checkProduct){
+
+                                p.amount = checkProduct.amount;
+                                p.isInCart = true;
+
+                            }//if
+
                         } );
+
+                        if( moreProducts.length === 0 ){
+                          $scope.offset += $scope.products.length;
+                        }//
+
+                        console.log($scope.offset);
 
                     }//MoreProduct
 
@@ -365,7 +386,7 @@ app.config( [
     });
 
     $stateProvider.state('singleProduct' , {
-            'url': '/product/:productID/:productAmount',
+            'url': '/product/:productID',
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
@@ -376,33 +397,33 @@ app.config( [
                 },
                 "content": {
                     'templateUrl': "templates/singleProduct/singleProduct.html",
-                    controller:['$scope','product','$stateParams', function ($scope, product, $stateParams) {
-                        $scope.product = product;
-                        $scope.product.amount = $stateParams.productAmount;
-                        var tabs = [
-                            { title: 'One', content: "Tabs will become paginated if there isn't enough room for them."},
-                            { title: 'Two', content: "You can swipe left and right on a mobile device to change tabs."},
-                            { title: 'Three', content: "You can bind the selected tab via the selected attribute on the md-tabs element."},
-                            { title: 'Four', content: "If you set the selected tab binding to -1, it will leave no tab selected."},
-                            { title: 'Five', content: "If you remove a tab, it will try to select a new one."},
-                            { title: 'Six', content: "There's an ink bar that follows the selected tab, you can turn it off if you want."},
-                            { title: 'Seven', content: "If you set ng-disabled on a tab, it becomes unselectable. If the currently selected tab becomes disabled, it will try to select the next tab."},
-                            { title: 'Eight', content: "If you look at the source, you're using tabs to look at a demo for tabs. Recursion!"},
-                            { title: 'Nine', content: "If you set md-theme=\"green\" on the md-tabs element, you'll get green tabs."},
-                            { title: 'Ten', content: "If you're still reading this, you should just go check out the API docs for tabs!"},
-                            { title: 'Eleven', content: "If you're still reading this, you should just go check out the API docs for tabs!"},
-                            { title: 'Twelve', content: "If you're still reading this, you should just go check out the API docs for tabs!"},
-                            { title: 'Thirteen', content: "If you're still reading this, you should just go check out the API docs for tabs!"},
-                            { title: 'Fourteen', content: "If you're still reading this, you should just go check out the API docs for tabs!"},
-                            { title: 'Fifteen', content: "If you're still reading this, you should just go check out the API docs for tabs!"},
-                            { title: 'Sixteen', content: "If you're still reading this, you should just go check out the API docs for tabs!"},
-                            { title: 'Seventeen', content: "If you're still reading this, you should just go check out the API docs for tabs!"},
-                            { title: 'Eighteen', content: "If you're still reading this, you should just go check out the API docs for tabs!"},
-                            { title: 'Nineteen', content: "If you're still reading this, you should just go check out the API docs for tabs!"},
-                            { title: 'Twenty', content: "If you're still reading this, you should just go check out the API docs for tabs!"}
-                        ];
+                    controller:['$scope','product','$stateParams', 'CartService' , function ($scope, product, $stateParams ,CartService ) {
 
-                        $scope.tabs = tabs;
+                        let productInCart = CartService.getCart().find( p => p.productID === product.productID );
+
+                        $scope.product = product;
+
+                        console.log(CartService.getCart());
+
+                        if(productInCart){
+                           $scope.product.amount = productInCart.amount;
+                           $scope.product.isInCart = true;
+                        }//if
+                        else{
+                            $scope.product.amount = 1;
+                            $scope.product.isInCart = false;
+                        }//else
+
+
+                        let attributes = $scope.product.attributes.map( a => {
+                            return {
+                                attributeTitle: a.attributeTitle,
+                                attributeDetails: a.pAttributes
+                            }
+                        } );
+
+                        $scope.attributes = attributes;
+                        console.log($scope.attributes);
 
                     }]
                 },
@@ -412,8 +433,6 @@ app.config( [
 
             },
             'resolve': {
-
-
                 'langs': [ 'LocaleService' , function ( LocaleService ){
                 return LocaleService.getLangs();
                 }  ],
@@ -493,54 +512,102 @@ app.config( [
                 },
                 "content": {
                     'templateUrl': "templates/checkout/checkout.html",
-                    controller: [ '$scope' , 'PASS','$http', 'CartService' ,  function ($scope , PASS, $http, CartService ){
+                    controller: [ '$scope' , 'PASS','$http', 'CartService' , 'products',  function ($scope , PASS, $http, CartService , products){
 
-                        $scope.cart = CartService.getCart();
+                        $scope.cart = products;
+                        let cart = CartService.getCart();
 
-                        $scope.promoOk=false;
+                        [].forEach.call( cart , item => {
 
-                        $scope.regName=true;
-                        $scope.regMail=true;
-                        $scope.regPhone=true;
+                            let product = $scope.cart.find( p => p.productID === item.productID );
+                            product.amount = item.amount || 1;
 
+                        } );
+
+                        $scope.discount = 0;
+
+                        $scope.Total = CartService.total( $scope.cart );
+
+                        $scope.order = {
+
+                            user: {
+                                'userName': '',
+                                'userEmail': '',
+                                'userPhone': '',
+                                'userAdress': '',
+                                'userMessage': '',
+                                'numberCard': '',
+                                'yearCard': '',
+                                'monthCard': '',
+                                'cvvCard': '',
+                                'nameCard': '',
+                            },
+                            promoCode: '',
+                            products: $scope.cart
+                        };
+
+                        $scope.years = [
+                            1990,
+                            1991,
+                            1992,
+                            1993,
+                            1994,
+                            1995,
+                        ];
+
+                        $scope.monthes = [
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12
+                        ];
+
+                        $scope.promoOk = false;
+
+                        $scope.regName = true;
+                        $scope.regMail = true;
+                        $scope.regPhone = true;
 
                         ripplyScott.init('.button', 0.75);
 
-                        $scope.PromoClick = function  (){
-
-                            let promos=[];
-
-                            CartService.GetPromo()
-                                .then(response=>{
-                                        promos=response;
-
-                                    let index=-1;
-                                    for(let i=0; i<promos.length; i++){
-                                        if(promos[i]['code'] === $scope.promoCode) {
-                                            index = i;
-                                        }//if
-                                    }//for
+                        $scope.PromoClick = async function  (){
 
 
-                                    if(index!=-1){
-                                        $scope.promoOk=true;
-                                        $scope.Promo=promos[index];
+                            let response = await CartService.GetPromo( $scope.order.promoCode );
 
-                                        $scope.Total = CartService.total();
-                                    }
-                                    else{
-                                        $scope.promoOk=false;
-                                    }
+                            console.log(response);
 
-                                    })
-                                .catch(error=>{
-                                    console.log(error);
-                                });
+                            if( response.code === 200){
 
+                                $scope.discount = response.data;
+                                $scope.promoOk = true;
 
+                            }//if
 
-                            
                         }//PromoClick
+
+                        $scope.ConfirmOrder = async function ($event){
+
+                            let response = await CartService.MakeOrder( $scope.order );
+
+                            if( response.code === 200 ){
+                                $scope.showDialog($event , `Ваш заказ принят в обработку! Номер заказа: ${response.data.orderID}`);
+                            }//if
+                            else{
+                                $scope.showDialog($event , 'Произошла неизвестная ошибка! Попробуйте позже!');
+                            }//else
+
+                            console.log('response' , response);
+
+                        };
 
                         $scope.RegName = function  (){
 
@@ -548,7 +615,7 @@ app.config( [
 
                             let regLat = /^[А-Я]{1}[а-я]{3,10}$/;
 
-                            if(regEng.test($scope.name) || regLat.test($scope.name)) {
+                            if(regEng.test($scope.order.user.userName) || regLat.test($scope.order.user.userName)) {
                                 $scope.regName=true;
                             }//if
                             else {
@@ -561,7 +628,7 @@ app.config( [
 
                             let regEmail = /^[a-z0-9\.\_\-]+@[a-z0-9]{2,6}(\.[a-z0-9]+)?\.[a-z]{2,5}$/ig;
 
-                            if(regEmail.test($scope.email)) {
+                            if(regEmail.test($scope.order.user.userEmail)) {
                                 $scope.regMail=true;
                             }//if
                             else {
@@ -574,7 +641,7 @@ app.config( [
 
                             let regPhone = /^\+38\(0[0-9]{2}\)\-[0-9]{3}(\-[0-9]{2}){2}$/i;
 
-                            if(regPhone.test($scope.phone)) {
+                            if(regPhone.test($scope.order.user.userPhone)) {
                                 $scope.regPhone=true;
                             }//if
                             else {
@@ -582,8 +649,6 @@ app.config( [
                             }
 
                         }//RegPhone
-
-
 
 
                     } ]
@@ -596,7 +661,13 @@ app.config( [
 
                 'langs': [ 'LocaleService' , function ( LocaleService ){
                     return LocaleService.getLangs();
-                }  ]
+                }  ],
+                'products': [
+                    'CartService' , function ( CartService ){
+                        return CartService.getProductsInCart();
+                    }
+                ]
+
 
 
             }

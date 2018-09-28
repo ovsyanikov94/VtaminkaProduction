@@ -7,7 +7,7 @@ export default  function SingleProductDirective() {
         restrict:'A',
         scope:{
             product:'=',
-            tabs: '='
+            attributes: '='
         },
         templateUrl: 'templates/directives/single-product-directive.html',
         controller:['$scope', 'CartService', function  ($scope, CartService){
@@ -17,7 +17,7 @@ export default  function SingleProductDirective() {
             $scope.ChangeAmount= function (product) {
 
                 for(let i=0; i<$scope.cart.length; i++){
-                    if($scope.cart[i].ProductID===product.ProductID){
+                    if($scope.cart[i].productID===product.productID){
                         $scope.cart[i].amount = product.amount;
                     }//if
                 }//for
@@ -27,25 +27,15 @@ export default  function SingleProductDirective() {
             
             $scope.AddProduct = function (product) {
 
-                let count=0;
-                for(let i=0; i<$scope.cart.length; i++){
+                product.isInCart = true;
 
-                    if($scope.cart[i].ProductID===product.ProductID){
-                        count++;
-                    }//if
-                }//for
-                
-                if(count===0){
-                    let newProduct =CartService._getSimpleProduct(product);
-                    newProduct.isInCart=true;
-                    CartService.addProduct(newProduct);
-                }//if
-                
+                let newProduct =CartService._getSimpleProduct(product);
+                newProduct.isInCart = true;
+                CartService.addProduct(newProduct);
 
-                
             }//AddProduct
-        }
-        ],
+
+        }],
 
         link: function  (scope, element){
 

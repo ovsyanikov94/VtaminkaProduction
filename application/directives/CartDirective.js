@@ -20,8 +20,9 @@ export default function CartDirective (){
 
                      let index=-1;
                      for(let i=0; i<$scope.cart.length; i++){
-                         if($scope.cart[i]['ProductID'] === product.ProductID) {
+                         if($scope.cart[i]['productID'] === product.productID) {
                              index = i;
+                             break;
                          }
                      }
 

@@ -1,7 +1,7 @@
 <div class="bannerSlim" style="background-image: url('images/banner.png');
         background-position-y: 55%;">
     <div class="bannerWrap"></div>
-    <h2 ng-bind="product.ProductTitle"></h2>
+    <h2 ng-bind="product.productTitle"></h2>
 </div>
 <div class="wrapper clearfix">
     <!-- SVG Sprite -->
@@ -16,15 +16,15 @@
     <div class="clearfix product">
 
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 productImg">
-            <img src="{{product.ProductImage}}" alt="">
+            <img src="{{product.image.imagePath}}" alt="">
         </div>
         <div class=" col-lg-6 col-md-6 col-sm-6 col-xs-12 productText">
 
 
             <div class="productBlock">
-                <h3 class="productPrice" ng-bind-template ="${{product.ProductPrice}}"></h3>
+                <h3 class="productPrice" ng-bind-template ="${{product.productPrice}}"></h3>
                 <div class="productToCart">
-                    <div class="clearfix buttonBlock">
+                    <div ng-show="!product.isInCart" class="clearfix buttonBlock">
                         <input class="input" type="text" ng-model="product.amount" ng-change="ChangeAmount(product)">
                         <button id="js-ripple-btn" class="button styl-material" ng-click="AddProduct(product)" translate>
                             LAYOUT_ADD_BASKET
@@ -33,9 +33,12 @@
                             </svg>
                         </button>
                     </div>
+                    <div ng-show="product.isInCart" class="clearfix buttonBlock">
+                        <div class="inCart" translate>LAYOUT_IN_BASKET</div>
+                    </div>
                 </div>
                 <h3 translate>LAYOUT_DESCRIPTION</h3>
-                <p ng-bind="product.ProductDescription"></p>
+                <p ng-bind="product.productDescription"></p>
 
             </div>
 
@@ -44,59 +47,18 @@
     </div>
     <div class="clearfix product">
         <div class=" col-lg-12 col-md-12 col-sm-12 col-xs-12 productText">
-
             <div md-content class="md-padding">
-                <md-tabs md-selected="selectedIndex" md-border-bottom md-autoselect md-swipe-content>
-                    <md-tab ng-repeat="tab in tabs"
-                            ng-disabled="tab.disabled"
-                            label="{{tab.title}}">
-                        <div class="demo-tab tab{{$index%4}}" style="padding: 25px; text-align: center;">
-                            <div ng-bind="tab.content"></div>
+                <md-tabs md-border-bottom md-autoselect md-swipe-content>
+                    <md-tab ng-repeat="attribute in attributes" label="{{attribute.attributeTitle}}">
+
+                        <div class="demo-tab" style="padding: 25px; text-align: center;">
+                            <div ng-bind="attribute.attributeDetails.attributeValue"></div>
                             <br/>
-                            <md-button class="md-primary md-raised" ng-disabled="tabs.length <= 1">Remove Tab</md-button>
                         </div>
+
                     </md-tab>
                 </md-tabs>
             </div>
-
-
-            <!--<div>-->
-                <!--<div class="tabsContent">-->
-                    <!--<ul class="nav nav-tabs" id="myTabs" role="tablist">-->
-                        <!--<li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab" translate>LAYOUT_DESCRIPTION</a></li>-->
-                        <!--<li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab" translate>LAYOUT_COMPOSITION</a></li>-->
-                        <!--<li role="presentation"><a href="#info" aria-controls="info" role="tab" data-toggle="tab" translate>LAYOUT_INFO</a></li>-->
-                        <!--<li role="presentation" class=""><a href="#home" aria-controls="home" role="tab" data-toggle="tab" translate>LAYOUT_DESCRIPTION</a></li>-->
-                        <!--<li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab" translate>LAYOUT_COMPOSITION</a></li>-->
-                        <!--<li role="presentation"><a href="#info" aria-controls="info" role="tab" data-toggle="tab" translate>LAYOUT_INFO</a></li>-->
-                        <!--<li role="presentation" class=""><a href="#home" aria-controls="home" role="tab" data-toggle="tab" translate>LAYOUT_DESCRIPTION</a></li>-->
-                        <!--<li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab" translate>LAYOUT_COMPOSITION</a></li>-->
-                        <!--<li role="presentation"><a href="#info" aria-controls="info" role="tab" data-toggle="tab" translate>LAYOUT_INFO</a></li>-->
-
-                    <!--</ul>-->
-                <!--</div>-->
-
-                <!--<div class="tab-content">-->
-                    <!--<div role="tabpanel" class="tab-pane active productBlock" id="home">-->
-
-                        <!--<p ng-bind="product.ProductDescription"></p>-->
-
-                    <!--</div>-->
-                    <!--<div role="tabpanel" class="tab-pane productBlock" id="profile">-->
-
-                        <!--<p ng ng-bind="product.ProductComposition"></p>-->
-                    <!--</div>-->
-                    <!--<div role="tabpanel" class="tab-pane productBlock" id="info">-->
-
-                        <!--<p><span class="bold">Дозировка на год: </span> {{product.ProductInfoYear}}</p>-->
-                        <!--<p><span class="bold">Дозировка на 6 месяцев:</span> {{product.ProductInfoSixMonth}}</p>-->
-                        <!--<p><span class="bold">Противопоказания: </span>{{product.ProductInfoContraindications}}</p>-->
-                        <!--<p><span class="bold">Дополнительные факты: </span> {{product.ProductInfoFact}}</p>-->
-                        <!--<p><span class="bold">Количество в упаковке: </span> {{product.ProductInfoAmountInBox}}</p>-->
-                    <!--</div>-->
-                <!--</div>-->
-
-            <!--</div>-->
 
         </div>
     </div>
