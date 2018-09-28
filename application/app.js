@@ -127,7 +127,7 @@ app.config( [
     '$translateProvider',
     ($stateProvider , $urlRouterProvider , $locationProvider , localStorageServiceProvider , cfpLoadingBarProvider , $translateProvider)=>{
 
-    $locationProvider.html5Mode(true).hashPrefix('!')
+    $locationProvider.html5Mode(true);//.hashPrefix('!')
 
     $urlRouterProvider.otherwise('/home');
 
